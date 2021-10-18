@@ -1,0 +1,34 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>ShareList</title>	
+	</head>
+	
+	<body>
+			<div align="center">
+
+				<div>
+					<table class="tablehead">
+						<tr>
+							<td><a href="{% url 'index' %}">ShareList</a></td>
+							<td style="text-align:right;">
+								{% if user.is_authenticated %}
+								<p>{{ user.username }} <p><a href="{% url 'logout' %}">Выйти</a></p></p>
+								{% else %}
+								<a href="{% url 'login' %}">Войти</a>
+								<a href="{% url 'signup' %}">Зарегистрироваться</a>
+
+								{% endif %}
+
+							</td>
+						</tr>
+					</table>
+					{% block content %}
+					{% endblock content %}
+				</div>
+		</div>
+	</body>
+</html>
