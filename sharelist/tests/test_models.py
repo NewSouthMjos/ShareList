@@ -91,7 +91,7 @@ class TestClassModelsCase(TestCase):
         #setting up the permissions tables
         for cur_userlist in [userlist1, userlist2, userlist3]:
             userlistcustomuser_readwrite_obj = UserListCustomUser_ReadWrite.objects.create(
-                customuser = CustomUser.objects.get(username='testuser1'),
+                customuser = CustomUser.objects.get(username='testuser2'),
                 userlist = cur_userlist
             )
             userlistcustomuser_readwrite_obj.save()
@@ -132,10 +132,13 @@ class TestClassModelsCase(TestCase):
 
     def test_UserListCustomUser_ReadWrite(self):
         user2=CustomUser.objects.get(username='testuser2')
-        jointable_record = UserListCustomUser_ReadWrite.objects.get(customuser = user2)
-        #userlist = list(UserList.objects.filter(customuser = user2))
+        # jointable_records = UserListCustomUser_ReadWrite.objects.filter(customuser = user2)
+        # userlist = list(UserList.objects.filter(
+        #     userlistcustomuser_readwrite__in = jointable_records
+        # ))
         userlist = list(UserList.objects.filter(
-            userlistcustomuser_readwrite = jointable_record
+            userlistcustomuser_readwrite__in = UserListCustomUser_ReadWrite.objects.filter(customuser = user2)
         ))
+
         len_of_lists = len(userlist)
         self.assertEqual(3, len_of_lists)
