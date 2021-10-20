@@ -1,4 +1,13 @@
 from django.db import models
+import secrets
+
+class UserListManager(models.Manager):
+    def create_userlist(self, *args, **kwargs):
+        userlist = self.create(*args, **kwargs)
+        userlist.new_sharelink_readonly()
+        userlist.new_sharelink_readwrite()
+        return userlist
+
 
 class UserList(models.Model):
     title = models.CharField(max_length=300)
@@ -16,8 +25,23 @@ class UserList(models.Model):
         related_name='userlist_last_update_author'
     )
     is_public = models.BooleanField(default=False)
-    sharelink_readwrite = models.CharField(max_length=20)
-    sharelink_readonly = models.CharField(max_length=20)
+    sharelink_readwrite = models.CharField(max_length=16)
+    sharelink_readonly = models.CharField(max_length=16)
+
+    objects = UserListManager()
+
+    # @classmethod
+    # def create(cls):
+    #     userlist = cls()
+    #     userlist.new_sharelink_readonly()
+    #     userlist.new_sharelink_readwrite()
+    #     return userlist
+
+    def new_sharelink_readonly(self):
+        self.sharelink_readonly = secrets.token_urlsafe(12)
+
+    def new_sharelink_readwrite(self):
+        self.sharelink_readwrite = secrets.token_urlsafe(12)
     
 class ItemList(models.Model):
     related_userlist = models.ForeignKey(

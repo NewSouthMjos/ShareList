@@ -22,7 +22,7 @@ class TestClassModelsCase(TestCase):
 
         listtitles = ['First', 'Second', 'Third', 'MyJobs', 'ToDoThings']
         for cur_list_numb in range(5):
-            userlist_obj = UserList.objects.create(
+            userlist_obj = UserList.objects.create_userlist(
                 title = f'{listtitles[cur_list_numb]}',
                 author = CustomUser.objects.get(username='testuser1'),
                 description = f'This is {cur_list_numb} testlist, using for test the lists',
@@ -30,9 +30,10 @@ class TestClassModelsCase(TestCase):
                 updated_datetime = timezone.now(),
                 last_update_author = CustomUser.objects.get(username='testuser1'),
                 is_public = False,
-                sharelink_readwrite = 'IN_CONSTRUCTION',
-                sharelink_readonly = 'IN_CONSTRUCTION',
+                #sharelink_readwrite = 'IN_CONSTRUCTION',
+                #sharelink_readonly = 'IN_CONSTRUCTION',
             )
+            #userlist_obj.new_sharelink_readonly()
             userlist_obj.save()
 
         userlist1 = UserList.objects.get(title='First')
@@ -96,6 +97,15 @@ class TestClassModelsCase(TestCase):
             )
             userlistcustomuser_readwrite_obj.save()
 
+        for cur_userlist in [userlist4, userlist5]:
+            userlistcustomuser_readonly_obj = UserListCustomUser_ReadOnly.objects.create(
+                customuser = CustomUser.objects.get(username='testuser2'),
+                userlist = cur_userlist
+            )
+            userlistcustomuser_readonly_obj.save()
+
+        
+
     def setUp(self):
         #print("setUp: Run once for every test method to setup clean data.")
         pass
@@ -142,3 +152,20 @@ class TestClassModelsCase(TestCase):
 
         len_of_lists = len(userlist)
         self.assertEqual(3, len_of_lists)
+
+    def test_UserListCustomUser_ReadOnly(self):
+        user2=CustomUser.objects.get(username='testuser2')
+        userlist = list(UserList.objects.filter(
+            userlistcustomuser_readonly__in = UserListCustomUser_ReadOnly.objects.filter(customuser = user2)
+        ))
+
+        len_of_lists = len(userlist)
+        self.assertEqual(2, len_of_lists)
+
+    def test_sharelinks(self):
+        userlist = list(UserList.objects.all())
+        for cur_userlist in userlist:
+            print(f'title: "{cur_userlist.title}" readonly code: {cur_userlist.sharelink_readonly}')
+            print(f'title: "{cur_userlist.title}" readwrite code: {cur_userlist.sharelink_readwrite}')
+            self.assertEqual(16, len(cur_userlist.sharelink_readonly))
+            self.assertEqual(16, len(cur_userlist.sharelink_readwrite))
