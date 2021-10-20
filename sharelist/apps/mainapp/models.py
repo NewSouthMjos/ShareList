@@ -30,13 +30,6 @@ class UserList(models.Model):
 
     objects = UserListManager()
 
-    # @classmethod
-    # def create(cls):
-    #     userlist = cls()
-    #     userlist.new_sharelink_readonly()
-    #     userlist.new_sharelink_readwrite()
-    #     return userlist
-
     def new_sharelink_readonly(self):
         self.sharelink_readonly = secrets.token_urlsafe(12)
 

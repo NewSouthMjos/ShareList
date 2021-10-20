@@ -165,7 +165,7 @@ class TestClassModelsCase(TestCase):
     def test_sharelinks(self):
         userlist = list(UserList.objects.all())
         for cur_userlist in userlist:
-            print(f'title: "{cur_userlist.title}" readonly code: {cur_userlist.sharelink_readonly}')
-            print(f'title: "{cur_userlist.title}" readwrite code: {cur_userlist.sharelink_readwrite}')
+            #print(f'title: "{cur_userlist.title}" readonly code: {cur_userlist.sharelink_readonly}')
+            #print(f'title: "{cur_userlist.title}" readwrite code: {cur_userlist.sharelink_readwrite}')
             self.assertEqual(16, len(cur_userlist.sharelink_readonly))
             self.assertEqual(16, len(cur_userlist.sharelink_readwrite))
