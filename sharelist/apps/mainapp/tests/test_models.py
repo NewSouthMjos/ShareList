@@ -169,3 +169,11 @@ class TestClassModelsCase(TestCase):
             #print(f'title: "{cur_userlist.title}" readwrite code: {cur_userlist.sharelink_readwrite}')
             self.assertEqual(16, len(cur_userlist.sharelink_readonly))
             self.assertEqual(16, len(cur_userlist.sharelink_readwrite))
+
+    # def test_temp(self):
+    #     try:
+    #         userlist = UserList.objects.filter(id=155)
+    #     except UserList.DoesNotExist:
+    #         pass
+    #     print(len(userlist))
+    #     self.assertTrue(True)
