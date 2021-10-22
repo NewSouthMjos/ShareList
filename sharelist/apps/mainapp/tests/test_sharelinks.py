@@ -1,7 +1,7 @@
 from django.test import TestCase
 from accounts.models import CustomUser
 from mainapp.models import UserList, ItemList, UserListCustomUser_ReadOnly, UserListCustomUser_ReadWrite
-from mainapp.permissions_logic import add_permission_readonly
+from mainapp.services.permissions_logic import add_permission
 from django.utils import timezone
 
 class TestClassModelsCase(TestCase):
@@ -19,7 +19,6 @@ class TestClassModelsCase(TestCase):
             password='secret2',
         )
         testuser2.save()
-
 
         listtitles = ['First', 'Second']
         for cur_list_numb in range(len(listtitles)):
@@ -56,10 +55,9 @@ class TestClassModelsCase(TestCase):
             )
             userlistcustomuser_readonly_obj.save()
     
-
     def test_UserListCustomUser_ReadOnly_listnotfound(self):
         try:
-            add_permission_readonly(userlist_id=3, user_id=2, sharelink="QGRPgaRr3-uhfjWQ")
+            add_permission(userlist_id=3, user_id=2, sharelink="QGRPgaRr3-uhfjWQ", mode="readonly")
             self.assertTrue(False)
         except LookupError:
             self.assertTrue(True)
@@ -69,11 +67,11 @@ class TestClassModelsCase(TestCase):
         right_sharelink = userlist2.sharelink_readonly
         wrong_sharelink = right_sharelink.swapcase()
         if right_sharelink == wrong_sharelink:
-            #this is very unique sutiation. Congratz!
+            #this is so unique sutiation. Congratz!
             wrong_sharelink = 'AAAAAAAAAAAAAAAA'
         #print(f'right: {right_sharelink}, wrong: {wrong_sharelink}')
         try:
-            add_permission_readonly(userlist_id=2, user_id=2, sharelink=wrong_sharelink)
+            add_permission(userlist_id=2, user_id=2, sharelink=wrong_sharelink, mode="readonly")
             self.assertTrue(False)
         except ValueError:
             self.assertTrue(True)
@@ -82,7 +80,7 @@ class TestClassModelsCase(TestCase):
         userlist2 = UserList.objects.get(title='Second')
         right_sharelink = userlist2.sharelink_readonly
         try:
-            add_permission_readonly(userlist_id=1, user_id=2, sharelink=right_sharelink)
+            add_permission(userlist_id=1, user_id=2, sharelink=right_sharelink, mode="readonly")
             self.assertTrue(False)
         except ValueError:
             self.assertTrue(True)
@@ -91,8 +89,26 @@ class TestClassModelsCase(TestCase):
         userlist2 = UserList.objects.get(title='Second')
         right_sharelink = userlist2.sharelink_readonly
         try:
-            add_permission_readonly(userlist_id=2, user_id=2, sharelink=right_sharelink)
+            add_permission(userlist_id=2, user_id=2, sharelink=right_sharelink, mode="readonly")
             self.assertTrue(True)    
         except (ValueError, LookupError):
             self.assertTrue(False)
-        UserListCustomUser_ReadOnly.objects.get(customuser=2, userlist=2)
+        try:
+            UserListCustomUser_ReadOnly.objects.get(customuser=2, userlist=2)
+            self.assertTrue(True)
+        except UserListCustomUser_ReadOnly.DoesNotExist:
+            self.assertTrue(False, "Record didnt added to jointable")
+
+    def test_UserListCustomUser_ReadWrite_rightwork(self):
+        userlist2 = UserList.objects.get(title='Second')
+        right_sharelink = userlist2.sharelink_readwrite
+        try:
+            add_permission(userlist_id=2, user_id=2, sharelink=right_sharelink, mode="readwrite")
+            self.assertTrue(True)    
+        except (ValueError, LookupError):
+            self.assertTrue(False)
+        try:
+            UserListCustomUser_ReadWrite.objects.get(customuser=2, userlist=2)
+            self.assertTrue(True)
+        except UserListCustomUser_ReadWrite.DoesNotExist:
+            self.assertTrue(False, "Record didnt added to jointable")
