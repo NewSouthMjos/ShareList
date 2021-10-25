@@ -3,6 +3,7 @@ from accounts.models import CustomUser
 from mainapp.models import UserList, ItemList, UserListCustomUser_ReadOnly, UserListCustomUser_ReadWrite
 from django.utils import timezone
 
+
 class TestClassModelsCase(TestCase):
 
     @classmethod
