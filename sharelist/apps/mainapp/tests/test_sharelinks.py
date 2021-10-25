@@ -1,11 +1,11 @@
 from django.test import TestCase
 from accounts.models import CustomUser
 from mainapp.models import UserList, ItemList, UserListCustomUser_ReadOnly, UserListCustomUser_ReadWrite
-from mainapp.services.permissions_logic import add_permission, detele_permission
+from mainapp.services.permissions_logic import add_permission, detele_permission, set_permissions
 from django.utils import timezone
 
 
-class TestClassModelsCase(TestCase):
+class TestPermissionsLogicCase(TestCase):
 
     #@classmethod
     def setUp(self):
@@ -136,3 +136,55 @@ class TestClassModelsCase(TestCase):
             self.assertTrue(True)
         except (ValueError, LookupError) as error:
             self.assertTrue(False, msg=error.args)
+
+    def test_set_permissions_none(self):
+        userlist2 = UserList.objects.get(title='Second')
+        acting_user = CustomUser.objects.get(username="testuser1")
+        user = CustomUser.objects.get(username="testuser2")
+
+        try:
+            set_permissions(userlist_id=userlist2.id, acting_user_id=acting_user.id, user_id=user.id, mode="none")
+        except (ValueError, LookupError) as error:
+            self.assertTrue(False, msg="Permissions didnt setted. Permissions_logic error: " + str(error.args))
+        jointable_record = UserListCustomUser_ReadOnly.objects.filter(customuser=user.id, userlist=userlist2.id)
+        if len(jointable_record) >= 1:
+            self.assertTrue(False, msg="Somewhy permissions are already there in R jointable (should be deleted)")
+        jointable_record = UserListCustomUser_ReadWrite.objects.filter(customuser=user.id, userlist=userlist2.id)
+        if len(jointable_record) >= 1:
+            self.assertTrue(False, msg="Somewhy permissions are already there in RW jointable (should be deleted)")
+
+    def test_set_permissions_readonly(self):
+        userlist2 = UserList.objects.get(title='Second')
+        acting_user = CustomUser.objects.get(username="testuser1")
+        user = CustomUser.objects.get(username="testuser2")
+
+        try:
+            set_permissions(userlist_id=userlist2.id, acting_user_id=acting_user.id, user_id=user.id, mode="readonly")
+        except (ValueError, LookupError) as error:
+            self.assertTrue(False, msg="Permissions didnt setted. Permissions_logic error: " + str(error.args))
+        jointable_record = UserListCustomUser_ReadOnly.objects.filter(customuser=user.id, userlist=userlist2.id)
+        if len(jointable_record) != 1:
+            self.assertTrue(False, msg="Somewhy permissions are NOT there, but shoulde be")
+        jointable_record = UserListCustomUser_ReadWrite.objects.filter(customuser=user.id, userlist=userlist2.id)
+        if len(jointable_record) >= 1:
+            self.assertTrue(False, msg="Somewhy permissions are already there in RW jointable (should be deleted)")
+
+    def test_set_permissions_readwrite(self):
+        userlist2 = UserList.objects.get(title='Second')
+        acting_user = CustomUser.objects.get(username="testuser1")
+        user = CustomUser.objects.get(username="testuser2")
+
+        try:
+            set_permissions(userlist_id=userlist2.id, acting_user_id=acting_user.id, user_id=user.id, mode="readwrite")
+        except (ValueError, LookupError) as error:
+            self.assertTrue(False, msg="Permissions didnt setted. Permissions_logic error: " + str(error.args))
+        jointable_record = UserListCustomUser_ReadOnly.objects.filter(customuser=user.id, userlist=userlist2.id)
+        print(f'len of R jointable: {len(jointable_record)}')
+        if len(jointable_record) >= 1:
+            self.assertTrue(False, msg="Somewhy permissions are already there in R jointable (should be deleted)")
+        jointable_record = UserListCustomUser_ReadWrite.objects.filter(customuser=user.id, userlist=userlist2.id)
+        print(f'len of RW jointable: {len(jointable_record)}')
+        if len(jointable_record) != 1:
+            self.assertTrue(False, msg="Somewhy permissions are NOT there, but shoulde be")
+        #Здесь проблема: кажется, возникает исключение в set_permissions
+        #но мы его не видим и не обрабатываем. См. permissions_logic.py

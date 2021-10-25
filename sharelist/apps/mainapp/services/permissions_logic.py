@@ -83,7 +83,7 @@ def set_permissions(
         changing_userlist = UserList.objects.get(id=userlist_id)
     except UserList.DoesNotExist:
         raise LookupError('UserList not found')
-    if changing_userlist.author != acting_user_id:
+    if changing_userlist.author.id != acting_user_id:
         raise ValueError("Author of this list is another user")
     if not(mode == "readonly"  or mode == "readwrite" or mode == "none"):
         raise ValueError('Wrong mode passed. Use mode = "readonly" or "readwrite" or "none"')
@@ -91,36 +91,36 @@ def set_permissions(
     if mode == "none":
         try:
             detele_permission(userlist_id, acting_user_id, user_id, "readonly")
-        finally:
+        except LookupError:
             pass
         try:
             detele_permission(userlist_id, acting_user_id, user_id, "readwrite")
-        finally:
+        except LookupError:
             pass
         return True
 
     if mode == "readonly":
         try:
             detele_permission(userlist_id, acting_user_id, user_id, "readwrite")
-        finally:
+        except LookupError:
             pass
         try:
             table_sharelink = changing_userlist.sharelink_readonly
             add_permission(userlist_id, acting_user_id, table_sharelink, "readonly")
             return True
-        finally:
+        except LookupError:
             pass
 
     if mode == "readwrite":
         try:
             detele_permission(userlist_id, acting_user_id, user_id, "readonly")
-        finally:
+        except LookupError:
             pass
         try:
             table_sharelink = changing_userlist.sharelink_readwrite
             add_permission(userlist_id, acting_user_id, table_sharelink, "readwrite")
             return True
-        finally:
-            pass
+        except LookupError:
+            raise ValueError("WARNING I DIDNT ADDED VALUE")
 
     raise ValueError("Something went wronge while changing permissions")
