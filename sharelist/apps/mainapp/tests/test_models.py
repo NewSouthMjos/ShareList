@@ -1,6 +1,6 @@
 from django.test import TestCase
 from accounts.models import CustomUser
-from mainapp.models import UserList, ItemList, UserListCustomUser_ReadOnly, UserListCustomUser_ReadWrite
+from mainapp.models import UserList, UserItem, UserListCustomUser_ReadOnly, UserListCustomUser_ReadWrite
 from django.utils import timezone
 
 
@@ -39,51 +39,51 @@ class TestClassModelsCase(TestCase):
         userlist2 = UserList.objects.get(title='Second')
         text_list = ['123', '456', '789']
         for cur_text_numb in range(3):
-            itemlist_obj = ItemList.objects.create(
+            useritem_obj = UserItem.objects.create(
                 related_userlist = userlist2,
                 text = text_list[cur_text_numb],
                 status = 'done',
                 last_update_author = CustomUser.objects.get(username='testuser2'),
                 updated_datetime = timezone.now(),
             )
-            itemlist_obj.save()
+            useritem_obj.save()
 
         userlist3 = UserList.objects.get(title='Third')
         text_list = ['foo_1', 'foo_2', 'foo_3']
         for cur_text_numb in range(3):
-            itemlist_obj = ItemList.objects.create(
+            useritem_obj = UserItem.objects.create(
                 related_userlist = userlist3,
                 text = text_list[cur_text_numb],
                 status = 'in_progess',
                 last_update_author = CustomUser.objects.get(username='testuser1'),
                 updated_datetime = timezone.now(),
             )
-            itemlist_obj.save()
+            useritem_obj.save()
 
 
         userlist4 = UserList.objects.get(title='MyJobs')
         text_list = ['translator', 'doctor', 'driver']
         for cur_text_numb in range(3):
-            itemlist_obj = ItemList.objects.create(
+            useritem_obj = UserItem.objects.create(
                 related_userlist = userlist4,
                 text = text_list[cur_text_numb],
                 status = 'not_done',
                 last_update_author = CustomUser.objects.get(username='testuser1'),
                 updated_datetime = timezone.now(),
             )
-            itemlist_obj.save()
+            useritem_obj.save()
 
         userlist5 = UserList.objects.get(title='ToDoThings')
         text_list = ['wash cat', 'clean dog', 'make everything great', 'destroy the world', 'get the pizza']
         for cur_text_numb in range(5):
-            itemlist_obj = ItemList.objects.create(
+            useritem_obj = UserItem.objects.create(
                 related_userlist = userlist5,
                 text = text_list[cur_text_numb],
                 status = 'done',
                 last_update_author = CustomUser.objects.get(username='testuser1'),
                 updated_datetime = timezone.now(),
             )
-            itemlist_obj.save()
+            useritem_obj.save()
 
         
 
@@ -120,16 +120,16 @@ class TestClassModelsCase(TestCase):
 
     def test_items_in_userlist(self):
         userlist = UserList.objects.get(title='ToDoThings')
-        itemlist = list(ItemList.objects.filter(related_userlist=userlist))
-        text = itemlist[0].text
+        useritem = list(UserItem.objects.filter(related_userlist=userlist))
+        text = useritem[0].text
         self.assertTrue('wash cat' == text)
-        len_of_items = len(itemlist)
+        len_of_items = len(useritem)
         self.assertEqual(5, len_of_items)
 
     def test_empty_list(self):
         userlist = UserList.objects.get(title='First')
-        itemlist = list(ItemList.objects.filter(related_userlist=userlist))
-        len_of_items = len(itemlist)
+        useritem = list(UserItem.objects.filter(related_userlist=userlist))
+        len_of_items = len(useritem)
         self.assertEqual(0, len_of_items)
 
     def test_author(self):

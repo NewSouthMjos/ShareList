@@ -1,0 +1,23 @@
+<!-- templates/main/mainpage.html -->
+{% extends 'base.html' %}
+{% block content %}
+<h1>MAIN PAGE</h1>
+	Списки под вашим авторством:
+	{% for cur_list in userlists_byauthor %}
+		<p><a href="{% url 'detailpage' cur_list.id %}">{{ cur_list.title }}</a></p>
+	{% endfor %}
+	
+	{% if userlists_readwrite %}
+		Списки с доступом на чтение/запись:
+		{% for cur_list in userlists_readwrite %}
+			<p><a href="{% url 'detailpage' cur_list.id %}">{{ cur_list.title }}</a></p>
+		{% endfor %}
+	{% endif %}
+	
+	{% if userlists_readonly %}
+		Списки с доступом на только на чтение:
+		{% for cur_list in userlists_readonly %}
+			<p><a href="{% url 'detailpage' cur_list.id %}">{{ cur_list.title }}</a></p>
+		{% endfor %}
+	{% endif %}
+{% endblock content %}
