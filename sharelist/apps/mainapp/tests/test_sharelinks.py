@@ -20,6 +20,12 @@ class TestPermissionsLogicCase(TestCase):
         )
         testuser2.save()
 
+        testuser3 = CustomUser.objects.create_user(
+            username='testuser3',
+            password='secret3',
+        )
+        testuser3.save()
+
         listtitles = ['First', 'Second']
         for cur_list_numb in range(len(listtitles)):
             userlist_obj = UserList.objects.create_userlist(
@@ -42,6 +48,12 @@ class TestPermissionsLogicCase(TestCase):
                 userlist = cur_userlist
             )
             userlistcustomuser_readonly_obj.save()
+        
+        userlistcustomuser_readwrite_obj = UserListCustomUser_ReadWrite.objects.create(
+            customuser = CustomUser.objects.get(username='testuser3'),
+            userlist = userlist1
+        )
+        userlistcustomuser_readwrite_obj.save()
 
     def test_UserListCustomUser_ReadOnly_listnotfound(self):
         user = CustomUser.objects.get(username="testuser2")
@@ -51,7 +63,7 @@ class TestPermissionsLogicCase(TestCase):
         except LookupError as error:
             self.assertTrue(True, msg=error.args)
 
-    def test_UserListCustomUser_ReadOnly_wrongsharelink(self):
+    def test_UserListCustomUser_ReadOnly_wrong_sharelink(self):
         userlist2 = UserList.objects.get(title='Second')
         user = CustomUser.objects.get(username="testuser2")
         right_sharelink = userlist2.sharelink_readonly
@@ -65,9 +77,29 @@ class TestPermissionsLogicCase(TestCase):
         except ValueError as error:
             self.assertTrue(True, msg=error.args)
         
-    def test_UserListCustomUser_ReadOnly_AlredyExistException(self):
+    def test_UserListCustomUser_ReadOnly_already_exist_exception(self):
         userlist1 = UserList.objects.get(title='First')
         user = CustomUser.objects.get(username="testuser2")
+        right_sharelink = userlist1.sharelink_readonly
+        try:
+            add_permission(userlist_id=userlist1.id, user_id=user.id, sharelink=right_sharelink, mode="readonly")
+            self.assertTrue(False)
+        except ValueError as error:
+            self.assertTrue(True, msg=error.args)
+
+    def test_UserListCustomUser_ReadOnly_wrongcode(self):
+        userlist2 = UserList.objects.get(title='Second')
+        user = CustomUser.objects.get(username="testuser2")
+        right_sharelink = userlist2.sharelink_readonly
+        try:
+            add_permission(userlist_id=userlist2.id, user_id=user.id, sharelink=right_sharelink, mode="readonlywrite")
+            self.assertTrue(False)
+        except ValueError as error:
+            self.assertTrue(True, msg=error.args)
+
+    def test_UserListCustomUser_ReadOnly_already_can_readwrite(self):
+        userlist1 = UserList.objects.get(title='First')
+        user = CustomUser.objects.get(username="testuser3")
         right_sharelink = userlist1.sharelink_readonly
         try:
             add_permission(userlist_id=userlist1.id, user_id=user.id, sharelink=right_sharelink, mode="readonly")
@@ -202,6 +234,12 @@ class TestPermissionsLogicCase(TestCase):
         jointable_record = UserListCustomUser_ReadWrite.objects.filter(customuser=user.id, userlist=userlist2.id)
         if len(jointable_record) >= 1:
             self.assertTrue(False, msg="Somewhy permissions are already there in RW jointable (should be deleted)")
+
+        #adding same permission for 2th time should case error:
+        try:
+            set_permissions(userlist_id=userlist2.id, acting_user_id=acting_user.id, user_id=user.id, mode="readonly")
+        except (ValueError, LookupError) as error:
+            self.assertTrue(True)
 
     def test_set_permissions_readwrite(self):
         userlist2 = UserList.objects.get(title='Second')

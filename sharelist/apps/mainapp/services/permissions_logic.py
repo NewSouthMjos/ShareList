@@ -112,7 +112,7 @@ def set_permissions(
             add_permission(userlist_id, user_id, table_sharelink, "readonly")
             return True
         except (LookupError, ValueError) as error:
-            raise ValueError("Error while adding permissions: "+ error.args)
+            raise ValueError("Error while adding permissions: "+ str(error.args))
 
     if mode == "readwrite":
         try:
