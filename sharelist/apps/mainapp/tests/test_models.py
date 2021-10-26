@@ -141,7 +141,7 @@ class TestClassModelsCase(TestCase):
     def test_UserListCustomUser_ReadWrite(self):
         user2=CustomUser.objects.get(username='testuser2')
         userlist = list(UserList.objects.filter(
-            userlistcustomuser_readwrite__in = UserListCustomUser_ReadWrite.objects.filter(customuser = user2)
+            userlistcustomuser_readwrite__in = UserListCustomUser_ReadWrite.objects.filter(customuser=user2)
         ))
 
         len_of_lists = len(userlist)
@@ -150,7 +150,7 @@ class TestClassModelsCase(TestCase):
     def test_UserListCustomUser_ReadOnly(self):
         user2=CustomUser.objects.get(username='testuser2')
         userlist = list(UserList.objects.filter(
-            userlistcustomuser_readonly__in = UserListCustomUser_ReadOnly.objects.filter(customuser = user2)
+            userlistcustomuser_readonly__in = UserListCustomUser_ReadOnly.objects.filter(customuser=user2)
         ))
 
         len_of_lists = len(userlist)

@@ -27,7 +27,10 @@ def add_permission(
 
     if not(table_sharelink == sharelink):
         raise ValueError('Wrong sharelink code')
-    user=CustomUser.objects.get(id=user_id)
+    try:
+        user=CustomUser.objects.get(id=user_id)
+    except CustomUser.DoesNotExist:
+        raise LookupError('User not found')
     jointable_records = JoinTable.objects.filter(customuser=user, userlist=changing_userlist.id)
     if len(jointable_records) >= 1:
         raise ValueError("Permission already granted")
@@ -106,10 +109,10 @@ def set_permissions(
             pass
         try:
             table_sharelink = changing_userlist.sharelink_readonly
-            add_permission(userlist_id, acting_user_id, table_sharelink, "readonly")
+            add_permission(userlist_id, user_id, table_sharelink, "readonly")
             return True
-        except LookupError:
-            pass
+        except (LookupError, ValueError) as error:
+            raise ValueError("Error while adding permissions: "+ error.args)
 
     if mode == "readwrite":
         try:
@@ -118,9 +121,9 @@ def set_permissions(
             pass
         try:
             table_sharelink = changing_userlist.sharelink_readwrite
-            add_permission(userlist_id, acting_user_id, table_sharelink, "readwrite")
+            add_permission(userlist_id, user_id, table_sharelink, "readwrite")
             return True
-        except LookupError:
-            raise ValueError("WARNING I DIDNT ADDED VALUE")
+        except (LookupError, ValueError) as error:
+            raise ValueError("Error while adding permissions: " + str(error.args))
 
     raise ValueError("Something went wronge while changing permissions")

@@ -137,6 +137,40 @@ class TestPermissionsLogicCase(TestCase):
         except (ValueError, LookupError) as error:
             self.assertTrue(False, msg=error.args)
 
+    def test_set_permissions_errors(self):
+        userlist2 = UserList.objects.get(title='Second')
+        acting_user = CustomUser.objects.get(username="testuser1")
+        user = CustomUser.objects.get(username="testuser2")
+
+        #wrong author
+        try:
+            set_permissions(userlist_id=userlist2.id, acting_user_id=user.id, user_id=user.id, mode="none")
+            self.assertTrue(False, msg="Wrong author can sets permissions for list?")
+        except ValueError as error:
+            self.assertTrue(True)
+
+        #wrong list
+        try:
+            set_permissions(userlist_id=34532342, acting_user_id=acting_user.id, user_id=user.id, mode="none")
+            self.assertTrue(False, msg="Wrong user passed, but no errors?")
+        except LookupError as error:
+            self.assertTrue(True)
+
+        #wrong mode passed
+        try:
+            set_permissions(userlist_id=userlist2.id, acting_user_id=acting_user.id, user_id=user.id, mode="readwriteonly")
+            self.assertTrue(False, msg="Wrong mode passed, but no errors?")
+        except ValueError as error:
+            self.assertTrue(True)
+
+        #wrong user passed
+        try:
+            set_permissions(userlist_id=userlist2.id, acting_user_id=acting_user.id, user_id=34532342, mode="readwrite")
+            self.assertTrue(False, msg="Wround user id passed, but no errors?")
+        except (ValueError, LookupError) as error:
+            self.assertTrue(True)
+            
+
     def test_set_permissions_none(self):
         userlist2 = UserList.objects.get(title='Second')
         acting_user = CustomUser.objects.get(username="testuser1")
@@ -178,13 +212,9 @@ class TestPermissionsLogicCase(TestCase):
             set_permissions(userlist_id=userlist2.id, acting_user_id=acting_user.id, user_id=user.id, mode="readwrite")
         except (ValueError, LookupError) as error:
             self.assertTrue(False, msg="Permissions didnt setted. Permissions_logic error: " + str(error.args))
-        jointable_record = UserListCustomUser_ReadOnly.objects.filter(customuser=user.id, userlist=userlist2.id)
-        print(f'len of R jointable: {len(jointable_record)}')
+        jointable_record = UserListCustomUser_ReadOnly.objects.filter(customuser=user, userlist=userlist2)
         if len(jointable_record) >= 1:
             self.assertTrue(False, msg="Somewhy permissions are already there in R jointable (should be deleted)")
-        jointable_record = UserListCustomUser_ReadWrite.objects.filter(customuser=user.id, userlist=userlist2.id)
-        print(f'len of RW jointable: {len(jointable_record)}')
+        jointable_record = UserListCustomUser_ReadWrite.objects.filter(customuser=user, userlist=userlist2)
         if len(jointable_record) != 1:
-            self.assertTrue(False, msg="Somewhy permissions are NOT there, but shoulde be")
-        #Здесь проблема: кажется, возникает исключение в set_permissions
-        #но мы его не видим и не обрабатываем. См. permissions_logic.py
+            self.assertTrue(False, msg="Somewhy permissions are NOT there, but should be")
