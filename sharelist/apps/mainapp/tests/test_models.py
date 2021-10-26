@@ -3,6 +3,7 @@ from accounts.models import CustomUser
 from mainapp.models import UserList, ItemList, UserListCustomUser_ReadOnly, UserListCustomUser_ReadWrite
 from django.utils import timezone
 
+
 class TestClassModelsCase(TestCase):
 
     @classmethod
@@ -30,10 +31,7 @@ class TestClassModelsCase(TestCase):
                 updated_datetime = timezone.now(),
                 last_update_author = CustomUser.objects.get(username='testuser1'),
                 is_public = False,
-                #sharelink_readwrite = 'IN_CONSTRUCTION',
-                #sharelink_readonly = 'IN_CONSTRUCTION',
             )
-            #userlist_obj.new_sharelink_readonly()
             userlist_obj.save()
 
         userlist1 = UserList.objects.get(title='First')
@@ -142,12 +140,8 @@ class TestClassModelsCase(TestCase):
 
     def test_UserListCustomUser_ReadWrite(self):
         user2=CustomUser.objects.get(username='testuser2')
-        # jointable_records = UserListCustomUser_ReadWrite.objects.filter(customuser = user2)
-        # userlist = list(UserList.objects.filter(
-        #     userlistcustomuser_readwrite__in = jointable_records
-        # ))
         userlist = list(UserList.objects.filter(
-            userlistcustomuser_readwrite__in = UserListCustomUser_ReadWrite.objects.filter(customuser = user2)
+            userlistcustomuser_readwrite__in = UserListCustomUser_ReadWrite.objects.filter(customuser=user2)
         ))
 
         len_of_lists = len(userlist)
@@ -156,7 +150,7 @@ class TestClassModelsCase(TestCase):
     def test_UserListCustomUser_ReadOnly(self):
         user2=CustomUser.objects.get(username='testuser2')
         userlist = list(UserList.objects.filter(
-            userlistcustomuser_readonly__in = UserListCustomUser_ReadOnly.objects.filter(customuser = user2)
+            userlistcustomuser_readonly__in = UserListCustomUser_ReadOnly.objects.filter(customuser=user2)
         ))
 
         len_of_lists = len(userlist)
@@ -165,7 +159,5 @@ class TestClassModelsCase(TestCase):
     def test_sharelinks(self):
         userlist = list(UserList.objects.all())
         for cur_userlist in userlist:
-            #print(f'title: "{cur_userlist.title}" readonly code: {cur_userlist.sharelink_readonly}')
-            #print(f'title: "{cur_userlist.title}" readwrite code: {cur_userlist.sharelink_readwrite}')
             self.assertEqual(16, len(cur_userlist.sharelink_readonly))
             self.assertEqual(16, len(cur_userlist.sharelink_readwrite))
