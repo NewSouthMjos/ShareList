@@ -7,7 +7,6 @@ from django.utils import timezone
 
 class TestPermissionsLogicCase(TestCase):
 
-    #@classmethod
     def setUp(self):
         testuser1 = CustomUser.objects.create_user(
             username='testuser1',

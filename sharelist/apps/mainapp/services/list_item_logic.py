@@ -14,13 +14,14 @@ def get_all_userlists(user_id: int):
     )
     userlists = {
         "userlists_byauthor": userlists_byauthor,
-        "userlists_readonly": userlists_readonly,
         "userlists_readwrite": userlists_readwrite,
+        "userlists_readonly": userlists_readonly,
     }
     return userlists
 
 def get_userlist_detail(user_id:int, userlist_id: int):
-    
+    """return the form of UserList to be displayed,
+    if there is access to this list"""
     #userlist exist check
     try:
         userlist_obj = UserList.objects.get(id=userlist_id)
