@@ -28,48 +28,13 @@ class MainPage(LoginRequiredMixin, View):
         return render(request, "mainpage.html", userlists)
 
 
-#Это старая функция отображения, её следует удалить после того, как возьму
-#отсюда всё нужное - например, проверку доступа
-class DetailList_old(LoginRequiredMixin, View):
-    login_url = reverse_lazy('login')
-
-    def get(self, request, userlist_id):
-        try:
-            form_userlist = get_userlist_detail(request.user.id, userlist_id)
-        except ValueError:
-            html = "<html><body>You have no access to list #%s.</body></html>" % userlist_id
-            return HttpResponse(html)
-        except LookupError:
-            html = "<html><body>The list #%s was not found on server.</body></html>" % userlist_id
-            return HttpResponse(html)
-
-        ListFormSet = inlineformset_factory(
-            UserList, UserItem, fields=('text', 'status', 'last_update_author', 'updated_datetime'), extra=1, formset=CustomInlineFormSet
-        ) 
-        userlist_obj = UserList.objects.get(id=userlist_id)
-        formset = ListFormSet(instance=userlist_obj)
-        return render(request, "detailpage.html", {"form": form_userlist, "formset": formset})
-
-    def post(self, request, userlist_id):
-        ListFormSet = inlineformset_factory(
-            UserList, UserItem, fields=('text', 'status', 'last_update_author', 'updated_datetime'), extra=1, formset=CustomInlineFormSet
-        )
-        userlist_obj = UserList.objects.get(id=userlist_id)
-        formset = ListFormSet(request.POST, instance=userlist_obj)
-        
-        
-        if formset.is_valid():
-            formset.save()
-            return redirect('/lists/')
-        else:
-            print('Form not valid')
-            print(formset.errors)
-
 #Новая классная функция отображения.
 #Вся логика пока внутри, перенести ей в бизнес-логику
 class DetailList(LoginRequiredMixin, View):
     login_url = reverse_lazy('login')
     def get(self, request, userlist_id):
+
+        #NOT WORKING ACCESS CHECKOUT:
         # try:
         #     form_userlist = get_userlist_detail(request.user.id, userlist_id)
         # except ValueError:

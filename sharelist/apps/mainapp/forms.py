@@ -43,7 +43,7 @@ class UserItemForm(forms.Form):
     text = forms.CharField(
         max_length=1000,
         widget=forms.TextInput(attrs={
-            'placeholder': 'Заполните пункт...',
+            'placeholder': 'Добавьте новый пункт...',
             }),
             required=False
     )
