@@ -12,6 +12,8 @@
 			{{ item.status }}
 		</div>
 	{% endfor %}
+	<div class='add_item'>
+	<div>
 	<input type="submit" value="Save">
 	
 	
@@ -22,8 +24,9 @@
 <script src="{% static 'jquery.formset.js' %}"></script>
 <script>
     $('.item_formset').formset({
-        addText: 'Добавить пункт',
-        deleteText: 'Удалить'
+        deleteText: 'Удалить',
+		addText: 'Добавить пункт',
+		hideLastAddForm: true
     });
 </script>
 {% endblock content %}

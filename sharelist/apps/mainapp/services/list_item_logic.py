@@ -64,7 +64,7 @@ def get_userlist_detail_items(user_id: int, userlist_id: int):
     Return item formset, that contains data from
     passed userlist_id
     """
-    ItemFormSet = formset_factory(UserItemForm, formset=BaseFormSet, extra=0)
+    ItemFormSet = formset_factory(UserItemForm, formset=BaseFormSet, extra=1)
     items_in_requested_list = UserItem.objects.filter(
         related_userlist=userlist_id
     )
