@@ -1,23 +1,19 @@
 from django.views import View
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
-from django.db import IntegrityError, transaction
-from mainapp.models import UserList, UserItem, UserListCustomUser_ReadOnly, UserListCustomUser_ReadWrite
 from mainapp.services.list_item_logic import (
-    get_all_userlists, 
-    get_userlist_detail_context
+    get_all_userlists, get_userlist_detail_context,
+    save_userlist_detail_all
 )
-
 from django.http import HttpResponse
-from django.forms import inlineformset_factory, formset_factory
-from mainapp.forms import CustomInlineFormSet, UserListForm, UserItemForm
-from django.forms.formsets import BaseFormSet
-
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
-from django.utils import timezone
 
 class BaseView(View):
+    """
+    Base view for handle exceptions.
+    All other views should be child of this view
+    """
     def dispatch(self, request, *args, **kwargs):
         try:
             response = super().dispatch(request, *args, **kwargs)
@@ -34,11 +30,13 @@ class BaseView(View):
 
 
 class StartPage(BaseView):
+    """Start page, that displays to all unauthentication users"""
     def get(self, request):
         return render(request, "startpage.html")
 
 
 class MainPage(LoginRequiredMixin, BaseView):
+    """Page that contains all the userlist, avalible to user"""
     login_url = reverse_lazy('login')
     
     def get(self, request):
@@ -48,49 +46,17 @@ class MainPage(LoginRequiredMixin, BaseView):
 
 #Новая классная функция отображения.
 class DetailList(LoginRequiredMixin, BaseView):
+    """
+    Detail view that contains all the items for userlist.
+    User can save changes by POST request
+    """
     login_url = reverse_lazy('login')
     def get(self, request, userlist_id):
         context = get_userlist_detail_context(request.user.id, userlist_id)
         return render(request, "detailpage.html", context)
 
-    #Вся логика пока внутри, перенести ей в бизнес-логику
     def post(self, request, userlist_id):
-        userlist_form = UserListForm(request.POST)
-        ItemFormSet = formset_factory(UserItemForm, formset=BaseFormSet)
-        item_formset = ItemFormSet(request.POST)
-
-        new_items = []
-        if userlist_form.is_valid() and item_formset.is_valid():
-            for item_form in item_formset:
-                if item_form.cleaned_data.get('text'):
-                    new_items.append(UserItem(
-                        related_userlist=UserList.objects.get(id=userlist_id),
-                        text=item_form.cleaned_data.get('text'),
-                        status=item_form.cleaned_data.get('status'),
-                        last_update_author=request.user,
-                        updated_datetime=timezone.now(),
-                    ))
-
-            #Update list info  
-            userlist_obj = UserList.objects.get(id=userlist_id)
-            userlist_obj.title = userlist_form.cleaned_data.get('title')
-            userlist_obj.description = userlist_form.cleaned_data.get('description')
-            userlist_obj.updated_datetime = timezone.now()
-            userlist_obj.last_update_author = request.user
-            userlist_obj.save()
-
-            #Update items in transaction
-            try:
-                with transaction.atomic():
-                    UserItem.objects.filter(related_userlist=userlist_id).delete()
-                    UserItem.objects.bulk_create(new_items)
-                    # And notify our users that it worked
-                    print('SUCCESS! we have UPDATE YOUR DATA!')
-
-            except IntegrityError: #If the transaction failed
-                messages.error(request, 'There was an error saving your profile.')
-                return redirect(reverse('profile-settings'))
-        
+        userlist_form, item_formset = save_userlist_detail_all(request, userlist_id)
         context = {
             'userlist_form': userlist_form,
             'item_formset': item_formset,
