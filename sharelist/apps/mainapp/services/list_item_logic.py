@@ -87,7 +87,7 @@ def save_userlist_detail_maininfo(request, userlist_id: int):
     """Updates list info from POST request"""
     userlist_form = UserListForm(request.POST)
     if not(userlist_form.is_valid()):
-        raise ValidationError
+        raise ValidationError('form is not valid')
     userlist_obj = UserList.objects.get(id=userlist_id)
     userlist_obj.title = userlist_form.cleaned_data.get('title')
     userlist_obj.description = userlist_form.cleaned_data.get('description')
@@ -100,7 +100,8 @@ def save_userlist_detail_items(request, userlist_id: int):
     ItemFormSet = formset_factory(UserItemForm, formset=BaseFormSet)
     item_formset = ItemFormSet(request.POST)
     if not(item_formset.is_valid()):
-        raise ValidationError
+        print(item_formset)
+        raise ValidationError('form is not valid')
     new_items = []
     for item_form in item_formset:
         if item_form.cleaned_data.get('text'):
@@ -116,8 +117,7 @@ def save_userlist_detail_items(request, userlist_id: int):
         with transaction.atomic():
             UserItem.objects.filter(related_userlist=userlist_id).delete()
             UserItem.objects.bulk_create(new_items)
-            # And notify our users that it worked
-            print('SUCCESS! we have UPDATE YOUR DATA!')
+            # LOG MESSAGE ABOUT UPDATE HERE <---
 
     except IntegrityError: #If the transaction failed
         #messages.error(request, '')

@@ -109,12 +109,12 @@ class TestClassModelsCase(TestCase):
         pass
 
     def test_userlist_title(self):
-        userlist1 = UserList.objects.get(id=1)
+        userlist1 = UserList.objects.get(title='First')
         userlist1_title = userlist1.title
         self.assertEqual('First', userlist1_title)
 
     def test_userlist_author_username(self):
-        userlist2 = UserList.objects.get(id=2)
+        userlist2 = UserList.objects.get(title='Second')
         userlist2_author_username = userlist2.author.username
         self.assertEqual('testuser1', userlist2_author_username)
 
