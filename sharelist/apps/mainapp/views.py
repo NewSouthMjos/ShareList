@@ -2,12 +2,14 @@ from django.views import View
 from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
+from django.http import HttpResponse
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+
 from mainapp.services.list_item_logic import (
     get_all_userlists, get_userlist_detail_context,
     save_userlist_detail_all
 )
-from django.http import HttpResponse
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+
 
 class BaseView(View):
     """
@@ -44,7 +46,6 @@ class MainPage(LoginRequiredMixin, BaseView):
         return render(request, "mainpage.html", userlists)
 
 
-#Новая классная функция отображения.
 class DetailList(LoginRequiredMixin, BaseView):
     """
     Detail view that contains all the items for userlist.
