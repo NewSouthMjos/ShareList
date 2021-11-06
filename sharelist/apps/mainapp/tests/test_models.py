@@ -8,7 +8,6 @@ class TestClassModelsCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        print("setUpTestData: Run once to set up non-modified data for all class methods.")
         testuser1 = CustomUser.objects.create_user(
             username='testuser1',
             password='secret1',
