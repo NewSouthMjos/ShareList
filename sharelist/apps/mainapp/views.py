@@ -1,14 +1,19 @@
 from django.views import View
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.forms.formsets import BaseFormSet
+from django.forms import formset_factory
 
 from mainapp.services.list_item_logic import (
-    get_all_userlists, get_userlist_detail_context,
-    save_userlist_detail_all
+    get_all_userlists, get_userlist_detail_context, 
+    get_userlist_detail_maininfo, save_userlist_detail_all,
+    delete_userlist, create_userlist
 )
+from mainapp.forms import UserListForm, UserItemForm
+
 
 
 class BaseView(View):
@@ -57,7 +62,7 @@ class DetailList(LoginRequiredMixin, BaseView):
         return render(request, "detailpage.html", context)
 
     def post(self, request, userlist_id):
-        userlist_form, item_formset = save_userlist_detail_all(request, userlist_id)
+        userlist_form, item_formset, userlist_id = save_userlist_detail_all(request, userlist_id)
         context = {
             'userlist_form': userlist_form,
             'item_formset': item_formset,
@@ -65,3 +70,39 @@ class DetailList(LoginRequiredMixin, BaseView):
         return render(request, "detailpage.html", context)
 
 
+class CreateList(LoginRequiredMixin, BaseView):
+    """
+    View of creating new list with items
+    """
+    login_url = reverse_lazy('login')
+
+    def get(self, request):
+        context = {
+            'userlist_form': UserListForm,
+            'item_formset': formset_factory(
+                UserItemForm, formset=BaseFormSet, extra=1
+            )
+        }
+        return render(request, "detailpage.html", context)
+
+    def post(self, request):
+        userlist_id = create_userlist(request)
+        return redirect(reverse('detailpage', args=[int(userlist_id)]))
+
+
+class DeleteList(LoginRequiredMixin, BaseView):
+    """
+    View of deleting list
+    """
+    login_url = reverse_lazy('login')
+
+    def get(self, request, userlist_id):
+        context = {'userlist_form': get_userlist_detail_maininfo(
+            request.user.id,
+            userlist_id
+        )}
+        return render(request, "deletepage.html", context)
+
+    def post(self, request, userlist_id):
+        delete_userlist(request.user.id, userlist_id)
+        return redirect(reverse('mainpage'))

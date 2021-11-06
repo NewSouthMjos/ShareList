@@ -73,8 +73,12 @@ def get_userlist_detail_items(user_id: int, userlist_id: int):
     ]
     return ItemFormSet(initial=item_data)
 
-def save_userlist_detail_all(request, userlist_id: int):
-    """Saves all information in userlist, include items"""
+def save_userlist_detail_all(request, userlist_id):
+    """
+    Saves all information in userlist, include items,
+    and returns tuple of userlist form, item formset
+    """
+
     if userlist_access_check(request.user.id, userlist_id) < 2:
         raise PermissionDenied(
             "You have no access to write list #%s." % userlist_id
@@ -82,6 +86,20 @@ def save_userlist_detail_all(request, userlist_id: int):
     userlist_form = save_userlist_detail_maininfo(request, userlist_id)
     item_formset = save_userlist_detail_items(request, userlist_id)
     return (userlist_form, item_formset)
+
+def create_userlist(request):
+    """Creates new list and saves it"""
+    userlist_obj = UserList.objects.create_userlist(
+            author = request.user,
+            created_datetime = timezone.now(),
+            updated_datetime = timezone.now(),
+            last_update_author = request.user,
+            is_public = False,
+        )
+    userlist_obj.save()
+    save_userlist_detail_all(request, userlist_obj.id)
+    return userlist_obj.id
+
 
 def save_userlist_detail_maininfo(request, userlist_id: int):
     """Updates list info from POST request"""
@@ -123,6 +141,18 @@ def save_userlist_detail_items(request, userlist_id: int):
         #messages.error(request, '')
         item_formset.add_error(None, 'Ошибка сохранения данных на сервере')
     return item_formset
+
+def delete_userlist(user_id: int, userlist_id: int):
+    """delete userlist, if there is access for user"""
+    if userlist_access_check(user_id, userlist_id) < 3:
+        raise PermissionDenied(
+            "You have no access to delete list #%s." % userlist_id
+        )
+    try:
+        userlist = UserList.objects.get(id=userlist_id)
+    except UserList.DoesNotExist:
+        raise ObjectDoesNotExist("List %s not found" % userlist_id)
+    userlist.delete()
 
 def userlist_access_check(user_id:int, userlist_id: int) -> int:
     """

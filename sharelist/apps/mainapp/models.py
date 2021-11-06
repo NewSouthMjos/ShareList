@@ -16,13 +16,13 @@ class UserList(models.Model):
     Main model - list of items, that user will operate.
     Each list has to link with items with one-to-many relation
     """
-    title = models.CharField(max_length=300)
+    title = models.CharField(max_length=300, blank=True)
     author = models.ForeignKey(
         'accounts.CustomUser',
         on_delete=models.CASCADE,
         related_name='userlist_author'
     )
-    description = models.TextField()
+    description = models.TextField(blank=True)
     created_datetime = models.DateTimeField()
     updated_datetime = models.DateTimeField()
     last_update_author = models.ForeignKey(
