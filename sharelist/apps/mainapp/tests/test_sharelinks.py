@@ -1,13 +1,12 @@
 from django.test import TestCase
 from accounts.models import CustomUser
-from mainapp.models import UserList, ItemList, UserListCustomUser_ReadOnly, UserListCustomUser_ReadWrite
+from mainapp.models import UserList, UserListCustomUser_ReadOnly, UserListCustomUser_ReadWrite
 from mainapp.services.permissions_logic import add_permission, detele_permission, set_permissions
 from django.utils import timezone
 
 
 class TestPermissionsLogicCase(TestCase):
 
-    #@classmethod
     def setUp(self):
         testuser1 = CustomUser.objects.create_user(
             username='testuser1',

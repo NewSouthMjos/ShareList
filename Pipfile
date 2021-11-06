@@ -9,6 +9,7 @@ psycopg2 = "*"
 django = "*"
 django-extensions = "*"
 coverage = "*"
+whitenoise = "*"
 
 [dev-packages]
 

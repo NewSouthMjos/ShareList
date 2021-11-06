@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<form action="" method="post">{% csrf_token %}
+
+	{{ userlist_form.as_p }}
+	{{ item_formset.management_form  }}
+	<p>Пункты списка:</p>
+	{% for item in item_formset %}
+		<div class="item_formset">
+			{{ item.text }}
+			{{ item.status }}
+		</div>
+	{% endfor %}
+	<div class='add_item'>
+	<div>
+	<input type="submit" value="Save">
+	
+	
+</form>
+
+<!-- Include formset plugin - including jQuery dependency -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="{% static 'jquery.formset.js' %}"></script>
+<script>
+    $('.item_formset').formset({
+        deleteText: 'Удалить',
+		addText: 'Добавить пункт',
+    });
+</script>
+{% endblock content %}

@@ -43,7 +43,7 @@ class UserList(models.Model):
         self.sharelink_readwrite = secrets.token_urlsafe(12)
   
 
-class ItemList(models.Model):
+class UserItem(models.Model):
     """Sub main model - item is on thing of the list"""
     related_userlist = models.ForeignKey(
         'UserList',
