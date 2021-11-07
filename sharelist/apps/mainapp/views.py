@@ -106,3 +106,13 @@ class DeleteList(LoginRequiredMixin, BaseView):
     def post(self, request, userlist_id):
         delete_userlist(request.user.id, userlist_id)
         return redirect(reverse('mainpage'))
+
+class ShareList(LoginRequiredMixin, BaseView):
+    """
+    Adding users permissions, if sharecode is right 
+    """
+    login_url = reverse_lazy('login')
+
+    def get(self, request, sharecode):
+        pass
+        return render(request, "sharepage.html", context)

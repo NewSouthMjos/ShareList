@@ -1,15 +1,15 @@
 from accounts.models import CustomUser
-from mainapp.models import UserList, UserListCustomUser_ReadOnly, UserListCustomUser_ReadWrite
+from mainapp.models import (
+    UserList, UserListCustomUser_ReadOnly, UserListCustomUser_ReadWrite
+)
 
 
 def add_permission(
-    userlist_id: int,
-    user_id: int,
-    sharelink: str,
-    mode: str
-    ):
-    """add permission to readonly or read/write of exacly list and exacly
-    user to jointable, if properly sharecode was passed to this func"""
+        userlist_id: int, user_id: int, sharelink: str, mode: str):
+    """
+    add permission to readonly or read/write of exacly list and exacly
+    user to jointable, if properly sharecode was passed to this func
+    """
 
     try:
         changing_userlist = UserList.objects.get(id=userlist_id)
@@ -45,15 +45,12 @@ def add_permission(
     )
 
 def detele_permission(
-    userlist_id: int,
-    acting_user_id: int,
-    user_id: int,
-    mode: str
-    ):
-    """delete permissions of readonly or read/write jointable of exacly user and
+        userlist_id: int, acting_user_id: int, user_id: int, mode: str):
+    """
+    delete permissions of readonly or read/write jointable of exacly user and
     exacly list, if user that trying to delete permissions (acting_user_id)
-    if author of this list"""
-
+    if author of this list
+    """
     try:
         changing_userlist = UserList.objects.get(id=userlist_id)
     except UserList.DoesNotExist:
@@ -74,11 +71,7 @@ def detele_permission(
         raise LookupError("Deleting permission does not exist")
 
 def set_permissions(
-    userlist_id: int,
-    acting_user_id: int,
-    user_id: int,
-    mode: str,
-    ):
+        userlist_id: int, acting_user_id: int, user_id: int, mode: str):
     """sets the permission of exacly list for exacly user to readonly, if user that
      trying to change permissions (acting_user_id) if author of this list """
 

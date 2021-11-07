@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+<form action="" method="post">{% csrf_token %}
+
+	<p>Хотите получить доступ на чтение или чтение/запись к списку "{{ userlist_form.title.value }}"?</p>
+	<input type="submit" value="Получить доступ">
+	<p>Описание списка:</p>
+	<p>{{ userlist_form.description.value }}</p>
+
+</form>
+
+
+{% endblock content %}
