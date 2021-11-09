@@ -24,19 +24,19 @@ class BaseView(View):
     Base view for handle exceptions.
     All other views should be child of this view
     """
-    # def dispatch(self, request, *args, **kwargs):
-    #     try:
-    #         response = super().dispatch(request, *args, **kwargs)
-    #     except Exception as e:
-    #         html = "<html><body>%s</body></html>" % e
-    #         if type(e) == PermissionDenied:
-    #             status_code = 403
-    #         elif type(e) == ObjectDoesNotExist:
-    #             status_code = 404
-    #         else:
-    #             status_code = 500
-    #         return HttpResponse(html, status=status_code)
-    #     return response
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            response = super().dispatch(request, *args, **kwargs)
+        except Exception as e:
+            html = "<html><body>%s</body></html>" % e
+            if type(e) == PermissionDenied:
+                status_code = 403
+            elif type(e) == ObjectDoesNotExist:
+                status_code = 404
+            else:
+                status_code = 500
+            return HttpResponse(html, status=status_code)
+        return response
 
 
 class StartPage(BaseView):
@@ -111,10 +111,34 @@ class DeleteList(LoginRequiredMixin, BaseView):
         return redirect(reverse('mainpage'))
 
 
+class RemoveList(LoginRequiredMixin, BaseView):
+    """
+    View of removing access for user for exacly list.
+    List remains untouched.
+    """
+    login_url = reverse_lazy('login')
+
+    def get(self, request, userlist_id):
+        context = {'userlist_form': get_userlist_detail_maininfo(
+            request.user.id,
+            userlist_id
+        )}
+        return render(request, "removelist.html", context)
+
+    def post(self, request, userlist_id):
+        access_level = userlist_access_check(request.user.id, userlist_id)
+        if access_level == 2:
+            mode = 'readwrite'
+        if access_level == 1:
+            mode = 'readonly'
+        else:
+            mode = None
+        detele_permission(userlist_id, request.user.id, request.user.id, mode)
+        return redirect(reverse('mainpage'))
+
+
 class ShareListConfirm(LoginRequiredMixin, BaseView):
-    """
-    Adding users permissions, if sharecode is right 
-    """
+    """Adding users permissions, if sharecode is right"""
     login_url = reverse_lazy('login')
 
     def get(self, request, userlist_id, sharecode):
@@ -130,3 +154,11 @@ class ShareListConfirm(LoginRequiredMixin, BaseView):
             raise KeyError('Mode = read or readwrite not found')
         add_permission(userlist_id, request.user.id, sharecode, mode)
         return redirect(reverse('mainpage'))
+
+
+class UserListControl(LoginRequiredMixin, BaseView):
+    """
+    Control page for author of UserList, where he can change permissions for
+    users and check the sharecode for list
+    """
+    pass

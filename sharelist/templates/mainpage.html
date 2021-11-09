@@ -11,14 +11,14 @@
 	{% if userlists_readwrite %}
 		Списки с доступом на чтение/запись:
 		{% for cur_list in userlists_readwrite %}
-			<p><a href="{% url 'detailpage' cur_list.id %}">{{ cur_list.title }}</a></p>
+			<p><a href="{% url 'detailpage' cur_list.id %}">{{ cur_list.title }}</a> <a href="{% url 'removelist' cur_list.id %}">Убрать</a></p>
 		{% endfor %}
 	{% endif %}
 	
 	{% if userlists_readonly %}
 		Списки с доступом на только на чтение:
 		{% for cur_list in userlists_readonly %}
-			<p><a href="{% url 'detailpage' cur_list.id %}">{{ cur_list.title }}</a></p>
+			<p><a href="{% url 'detailpage' cur_list.id %}">{{ cur_list.title }}</a> <a href="{% url 'removelist' cur_list.id %}">Убрать</a></p>
 		{% endfor %}
 	{% endif %}
 {% endblock content %}

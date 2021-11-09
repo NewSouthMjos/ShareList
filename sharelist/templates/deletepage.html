@@ -2,8 +2,8 @@
 {% block content %}
 <form action="" method="post">{% csrf_token %}
 
-	Удалить список "{{ userlist_form.title.value }}"?
-	<input type="submit" value="Удалить">
+	<p>Удалить список "{{ userlist_form.title.value }}"?</p>
+	<p><input type="submit" value="Удалить"></p>
 
 </form>
 
