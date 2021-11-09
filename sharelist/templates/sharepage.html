@@ -1,11 +1,16 @@
 {% extends 'base.html' %}
 {% block content %}
 <form action="" method="post">{% csrf_token %}
-
-	<p>Хотите получить доступ на чтение или чтение/запись к списку "{{ userlist_form.title.value }}"?</p>
+	
+	{% if mode == "readonly" %}
+		<p>Хотите получить доступ на чтение к списку "{{ title }}"?</p>
+	{% elif mode == "readwrite" %}
+		<p>Хотите получить доступ на чтение и запись к списку "{{ title }}"?</p>
+	{% endif %}
+	<input type="hidden" name="mode" value={{ mode }} />
 	<input type="submit" value="Получить доступ">
 	<p>Описание списка:</p>
-	<p>{{ userlist_form.description.value }}</p>
+	<p>{{ description }}</p>
 
 </form>
 

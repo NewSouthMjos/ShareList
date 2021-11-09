@@ -38,18 +38,44 @@ def add_permission(
         JoinTable_readwrite = UserListCustomUser_ReadWrite.objects.filter(customuser=user, userlist=changing_userlist.id)
         if len(JoinTable_readwrite) >= 1:
             raise ValueError("You already have high privileges for this list")
+
+    #deleting readonly permisson, if readwrite adding:
+    if mode == "readwrite":
+        JoinTable_readonly = UserListCustomUser_ReadOnly.objects.filter(customuser=user, userlist=changing_userlist.id)
+        if len(JoinTable_readonly) >= 1:
+            JoinTable_readonly.delete()
     
     JoinTable.objects.create(
         customuser = user,
         userlist = changing_userlist
     )
 
+def add_permission_checker(userlist_id: int, user_id: int, sharelink: str):
+    """
+    Check information about adding permissions request, and if all is fine - 
+    returns title, description and mode = readonly/readwrite
+    """
+    try:
+        changing_userlist = UserList.objects.get(id=userlist_id)
+    except UserList.DoesNotExist:
+        raise LookupError('UserList not found')
+    if sharelink == changing_userlist.sharelink_readonly:
+        mode = "readonly"
+    elif sharelink == changing_userlist.sharelink_readwrite:
+        mode = "readwrite"
+    else:
+        raise ValueError('Wrong sharelink code')
+    return {
+        'title': changing_userlist.title,
+        'description': changing_userlist.description,
+        'mode': mode}
+
 def detele_permission(
         userlist_id: int, acting_user_id: int, user_id: int, mode: str):
     """
-    delete permissions of readonly or read/write jointable of exacly user and
+    Delete permissions of readonly or read/write jointable of exacly user and
     exacly list, if user that trying to delete permissions (acting_user_id)
-    if author of this list
+    if author of this list, or acting_user trying to delete himself's access
     """
     try:
         changing_userlist = UserList.objects.get(id=userlist_id)
@@ -59,8 +85,9 @@ def detele_permission(
     if not(mode == "readonly"  or mode == "readwrite"):
         raise ValueError('Wrong mode passed. Use mode = "readonly" or "readwrite"')
 
-    if changing_userlist.author.id != acting_user_id:
-        raise ValueError("Author of this list is another user")
+    if not(changing_userlist.author.id == acting_user_id 
+           or acting_user_id == user_id):
+        raise ValueError("You have no access to change this permission")
     
     try:
         if mode == "readonly":
@@ -72,8 +99,10 @@ def detele_permission(
 
 def set_permissions(
         userlist_id: int, acting_user_id: int, user_id: int, mode: str):
-    """sets the permission of exacly list for exacly user to readonly, if user that
-     trying to change permissions (acting_user_id) if author of this list """
+    """
+    sets the permission of exacly list for exacly user to readonly, if user that
+    trying to change permissions (acting_user_id) if author of this list
+    """
 
     try:
         changing_userlist = UserList.objects.get(id=userlist_id)

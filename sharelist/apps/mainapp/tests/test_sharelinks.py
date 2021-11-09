@@ -154,10 +154,12 @@ class TestPermissionsLogicCase(TestCase):
         except (ValueError, LookupError) as error:
             self.assertTrue(True)
 
-        #wrong author
+        user3 = CustomUser.objects.get(username="testuser3")
+        #no access
         try:
-            detele_permission(userlist_id=userlist1.id, acting_user_id=user.id, user_id=user.id, mode="readonly")
-            self.assertTrue(False, msg="wrong author passed, but deleted?")
+            detele_permission(userlist_id=userlist1.id, acting_user_id=user3.id, user_id=user.id, mode="readonly")
+            self.assertTrue(False, msg="wrong author passed and \
+            user is not accesseble to delete permission, but deleted?")
         except (ValueError, LookupError) as error:
             self.assertTrue(True)
         
