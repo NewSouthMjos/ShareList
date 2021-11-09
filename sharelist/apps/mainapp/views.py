@@ -10,10 +10,11 @@ from django.forms import formset_factory
 from mainapp.services.list_item_logic import (
     get_all_userlists, get_userlist_detail_context, 
     get_userlist_detail_maininfo, save_userlist_detail_all,
-    delete_userlist, create_userlist
+    delete_userlist, create_userlist, userlist_access_check,
+    get_userlist_detail_sharelinks
 )
 from mainapp.services.permissions_logic import (
-    add_permission_checker, add_permission
+    add_permission_checker, add_permission, detele_permission
 )
 from mainapp.forms import UserListForm, UserItemForm
 
@@ -127,12 +128,13 @@ class RemoveList(LoginRequiredMixin, BaseView):
 
     def post(self, request, userlist_id):
         access_level = userlist_access_check(request.user.id, userlist_id)
+        print(access_level)
         if access_level == 2:
             mode = 'readwrite'
-        if access_level == 1:
+        elif access_level == 1:
             mode = 'readonly'
         else:
-            mode = None
+            raise ValueError('Privilegies error')
         detele_permission(userlist_id, request.user.id, request.user.id, mode)
         return redirect(reverse('mainpage'))
 
@@ -161,4 +163,15 @@ class UserListControl(LoginRequiredMixin, BaseView):
     Control page for author of UserList, where he can change permissions for
     users and check the sharecode for list
     """
-    pass
+    login_url = reverse_lazy('login')
+
+    def get(self, request, userlist_id):
+        context = {'userlist_form': get_userlist_detail_maininfo(
+                        request.user.id,
+                        userlist_id),
+                   'userlistshareform': get_userlist_detail_sharelinks(
+                        request,
+                        userlist_id),
+                   }
+        return render(request, "controllist.html", context)
+

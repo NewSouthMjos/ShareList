@@ -1,7 +1,5 @@
 from django import forms
-#from django.forms import ModelForm, fields
 from mainapp.models import UserList
-#from django.forms import BaseInlineFormSet
 from django.utils import timezone
 from accounts.models import CustomUser
 
@@ -16,7 +14,7 @@ class UserItemForm(forms.Form):
         widget=forms.TextInput(attrs={
             'placeholder': 'Добавьте новый пункт...',
             }),
-            required=False
+        required=False
     )
     status = forms.ChoiceField(
         choices=[
@@ -26,6 +24,7 @@ class UserItemForm(forms.Form):
         ],
         required=False
     )
+
 
 class UserListForm(forms.Form):
     """
@@ -37,12 +36,34 @@ class UserListForm(forms.Form):
         widget=forms.TextInput(attrs={
             'placeholder': 'Название списка',
             }),
-            required=True
+        required=True
     )
     description = forms.CharField(
         max_length=1000,
         widget=forms.TextInput(attrs={
             'placeholder': 'Описание списка',
             }),
-            required=False
+        required=False
+    )
+
+
+class UserListShareForm(forms.Form):
+    """
+    Form for representing sharelinks information of list
+    """
+    sharelink_readonly = forms.CharField(
+        max_length=32,
+        widget=forms.TextInput(attrs={
+            'readonly': True,
+            'size': 40,
+            }),
+        required=False
+    )
+    sharelink_readwrite = forms.CharField(
+        max_length=32,
+        widget=forms.TextInput(attrs={
+            'readonly': True,
+            'size': 40,
+            }),
+        required=False
     )

@@ -9,7 +9,7 @@ from django.db import IntegrityError, transaction
 from mainapp.models import (
     UserList, UserItem, UserListCustomUser_ReadOnly,
     UserListCustomUser_ReadWrite)
-from mainapp.forms import UserListForm, UserItemForm
+from mainapp.forms import UserListForm, UserItemForm, UserListShareForm
 from accounts.models import CustomUser
 
 
@@ -171,6 +171,25 @@ def userlist_access_check(user_id:int, userlist_id: int) -> int:
     if len(list(UserListCustomUser_ReadOnly.objects.filter(customuser=user_id, userlist=userlist_id))) > 0:
         return 1
     return 0
+
+def get_userlist_detail_sharelinks(request, userlist_id: int):
+    """
+    Returns a form of UserListShareForm with info about sharelinks
+    """
+    try:
+        userlist = UserList.objects.get(id=userlist_id)
+    except UserList.DoesNotExist:
+        raise ObjectDoesNotExist("List %s not found" % userlist_id)
+    if userlist_access_check(request.user.id, userlist_id) < 3:
+        raise PermissionDenied("You have no access to view sharelinks")
+ 
+    link_readonly = str(request.get_host()) + '/lists/' + str(userlist_id) + '/' + str(userlist.sharelink_readonly)
+    link_readwrite = str(request.get_host()) + '/lists/' + str(userlist_id) + '/' + str(userlist.sharelink_readwrite)
+    return UserListShareForm(initial={
+        'sharelink_readonly': link_readonly,
+        'sharelink_readwrite': link_readwrite,
+    })
+
 
 
     

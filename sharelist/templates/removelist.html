@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+<form action="" method="post">{% csrf_token %}
+	<p>Убрать список "{{ userlist_form.title.value }}" из ваших списков?
+	Он останется доступен для всех остальных пользователей с доступом. </p>
+	<p><input type="submit" value="Убрать"></p>
+
+</form>
+
+
+{% endblock content %}

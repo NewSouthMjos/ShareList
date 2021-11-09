@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<form action="" method="post">{% csrf_token %}
+	<p>Список "{{ userlist_form.title.value }}"</p>
+	<p>Поделиться списком:</p>
+	<table>
+	  <tr>
+		<td>на чтение:</td>
+		<td>{{ userlistshareform.sharelink_readonly }}</td>
+	  </tr>
+	  <tr>
+		<td>на запись:</td>
+		<td>{{ userlistshareform.sharelink_readwrite }}</td>
+	  </tr>
+	</table>
+	<p><input type="submit" value="Сохранить"></p>
+
+</form>
+
+
+{% endblock content %}

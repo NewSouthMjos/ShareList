@@ -2,20 +2,19 @@ from accounts.models import CustomUser
 from mainapp.models import (
     UserList, UserListCustomUser_ReadOnly, UserListCustomUser_ReadWrite
 )
-
+from django.db import IntegrityError, transaction
+from mainapp.services.list_item_logic import userlist_access_check
 
 def add_permission(
         userlist_id: int, user_id: int, sharelink: str, mode: str):
     """
-    add permission to readonly or read/write of exacly list and exacly
+    Add permission to readonly or read/write of exacly list and exacly
     user to jointable, if properly sharecode was passed to this func
     """
-
     try:
         changing_userlist = UserList.objects.get(id=userlist_id)
     except UserList.DoesNotExist:
         raise LookupError('UserList not found')
-    
     if mode == "readonly":
         JoinTable = UserListCustomUser_ReadOnly
         table_sharelink = changing_userlist.sharelink_readonly
@@ -24,7 +23,6 @@ def add_permission(
         table_sharelink = changing_userlist.sharelink_readwrite
     else:
         raise ValueError('Wrong mode passed. Use mode = "readonly" or "readwrite"')
-
     if not(table_sharelink == sharelink):
         raise ValueError('Wrong sharelink code')
     try:
@@ -34,21 +32,27 @@ def add_permission(
     jointable_records = JoinTable.objects.filter(customuser=user, userlist=changing_userlist.id)
     if len(jointable_records) >= 1:
         raise ValueError("Permission already granted")
-    if mode == "readonly":
-        JoinTable_readwrite = UserListCustomUser_ReadWrite.objects.filter(customuser=user, userlist=changing_userlist.id)
-        if len(JoinTable_readwrite) >= 1:
-            raise ValueError("You already have high privileges for this list")
 
-    #deleting readonly permisson, if readwrite adding:
+    #check the access, to raise error if access level is already higher
+    if mode == "readonly":
+        if userlist_access_check(user_id, userlist_id) >= 1:
+            raise ValueError("You already have higher privileges for this list")
     if mode == "readwrite":
-        JoinTable_readonly = UserListCustomUser_ReadOnly.objects.filter(customuser=user, userlist=changing_userlist.id)
-        if len(JoinTable_readonly) >= 1:
-            JoinTable_readonly.delete()
-    
-    JoinTable.objects.create(
-        customuser = user,
-        userlist = changing_userlist
-    )
+        if userlist_access_check(user_id, userlist_id) >= 2:
+            raise ValueError("You already have higher privileges for this list")
+
+
+    with transaction.atomic():
+        #deleting readonly permisson, if readwrite adding:
+        if mode == "readwrite":
+            JoinTable_readonly = UserListCustomUser_ReadOnly.objects.filter(customuser=user, userlist=changing_userlist.id)
+            if len(JoinTable_readonly) >= 1:
+                JoinTable_readonly.delete()
+        
+        JoinTable.objects.create(
+            customuser = user,
+            userlist = changing_userlist
+        )
 
 def add_permission_checker(userlist_id: int, user_id: int, sharelink: str):
     """
@@ -81,14 +85,11 @@ def detele_permission(
         changing_userlist = UserList.objects.get(id=userlist_id)
     except UserList.DoesNotExist:
         raise LookupError('UserList not found')
-
-    if not(mode == "readonly"  or mode == "readwrite"):
+    if not(mode == "readonly" or mode == "readwrite"):
         raise ValueError('Wrong mode passed. Use mode = "readonly" or "readwrite"')
-
     if not(changing_userlist.author.id == acting_user_id 
            or acting_user_id == user_id):
         raise ValueError("You have no access to change this permission")
-    
     try:
         if mode == "readonly":
             UserListCustomUser_ReadOnly.objects.get(customuser=user_id, userlist=userlist_id).delete()
