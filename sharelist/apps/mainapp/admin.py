@@ -1,5 +1,10 @@
 from django.contrib import admin
-from mainapp.models import UserList, UserItem, UserListCustomUser_ReadOnly, UserListCustomUser_ReadWrite
+from mainapp.models import (
+    UserList,
+    UserItem,
+    UserListCustomUser_ReadOnly,
+    UserListCustomUser_ReadWrite,
+)
 
 
 admin.site.register(UserList)

@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('mainapp', '0001_initial'),
+        ("mainapp", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='userlist',
-            name='sharelink_readonly',
+            model_name="userlist",
+            name="sharelink_readonly",
             field=models.CharField(max_length=16),
         ),
         migrations.AlterField(
-            model_name='userlist',
-            name='sharelink_readwrite',
+            model_name="userlist",
+            name="sharelink_readwrite",
             field=models.CharField(max_length=16),
         ),
     ]

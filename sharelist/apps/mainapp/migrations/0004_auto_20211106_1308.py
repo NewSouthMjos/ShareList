@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('mainapp', '0003_rename_itemlist_useritem'),
+        ("mainapp", "0003_rename_itemlist_useritem"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='userlist',
-            name='description',
+            model_name="userlist",
+            name="description",
             field=models.TextField(blank=True),
         ),
         migrations.AlterField(
-            model_name='userlist',
-            name='title',
+            model_name="userlist",
+            name="title",
             field=models.CharField(blank=True, max_length=300),
         ),
     ]

@@ -15,45 +15,127 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='UserList',
+            name="UserList",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=300)),
-                ('description', models.TextField()),
-                ('created_datetime', models.DateTimeField()),
-                ('updated_datetime', models.DateTimeField()),
-                ('is_public', models.BooleanField(default=False)),
-                ('sharelink_readwrite', models.CharField(max_length=20)),
-                ('sharelink_readonly', models.CharField(max_length=20)),
-                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='userlist_author', to=settings.AUTH_USER_MODEL)),
-                ('last_update_author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='userlist_last_update_author', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=300)),
+                ("description", models.TextField()),
+                ("created_datetime", models.DateTimeField()),
+                ("updated_datetime", models.DateTimeField()),
+                ("is_public", models.BooleanField(default=False)),
+                ("sharelink_readwrite", models.CharField(max_length=20)),
+                ("sharelink_readonly", models.CharField(max_length=20)),
+                (
+                    "author",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="userlist_author",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "last_update_author",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="userlist_last_update_author",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='UserListCustomUser_ReadWrite',
+            name="UserListCustomUser_ReadWrite",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('customuser', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('userlist', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='mainapp.userlist')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "customuser",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "userlist",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="mainapp.userlist",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='UserListCustomUser_ReadOnly',
+            name="UserListCustomUser_ReadOnly",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('customuser', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('userlist', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='mainapp.userlist')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "customuser",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "userlist",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="mainapp.userlist",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='ItemList',
+            name="ItemList",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('text', models.TextField()),
-                ('status', models.CharField(max_length=20)),
-                ('updated_datetime', models.DateTimeField()),
-                ('last_update_author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('related_userlist', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='mainapp.userlist')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("text", models.TextField()),
+                ("status", models.CharField(max_length=20)),
+                ("updated_datetime", models.DateTimeField()),
+                (
+                    "last_update_author",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "related_userlist",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="mainapp.userlist",
+                    ),
+                ),
             ],
         ),
     ]
