@@ -36,17 +36,13 @@ def userlist_access_check(user_id: int, userlist_id: int) -> int:
         raise ObjectDoesNotExist("List %s not found" % userlist_id)
     if userlist_obj.author.id == user_id:
         return 3
-    if (
-        len(
-            list(
-                UserListCustomUser_ReadWrite.objects.filter(
-                    customuser=user_id, userlist=userlist_id
-                )
-            )
-        )
-        > 0
-    ):
+
+    #this is my approach to format code:
+    if len(list(UserListCustomUser_ReadWrite.objects.filter(
+                customuser=user_id, userlist=userlist_id))
+            > 0 ):
         return 2
+    #and this is what Black done, witch is better?
     if (
         len(
             list(
@@ -58,6 +54,7 @@ def userlist_access_check(user_id: int, userlist_id: int) -> int:
         > 0
     ):
         return 1
+    
     return 0
 
 
