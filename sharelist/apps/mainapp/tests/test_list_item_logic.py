@@ -21,9 +21,7 @@ from mainapp.services.list_item_logic import (
 )
 
 
-
 class TestListItemLogicCase(TestCase):
-
     def setUp(self):
         testuser1 = CustomUser.objects.create_user(
             username='testuser1',
@@ -270,7 +268,6 @@ class TestListItemLogicCase(TestCase):
         userlist_form, item_formset = save_userlist_detail_all(
             request, userlist3.id
         )
-
         userlist3 = UserList.objects.get(id=userlist3.id)
         self.assertEqual(userlist3.title, 'POST123')
         self.assertEqual(userlist3.description, 'TEST_DESC')
@@ -279,34 +276,3 @@ class TestListItemLogicCase(TestCase):
         ).order_by('text')[0]
         self.assertEqual(useritem_obj.text, 'A')
         self.assertEqual(useritem_obj.status, 'done')
-
-
-    def test_userlist_access_check(self):
-        user1 = CustomUser.objects.get(username='testuser1')
-        user2 = CustomUser.objects.get(username='testuser2')
-        user3 = CustomUser.objects.get(username='testuser3')
-        userlist3 = UserList.objects.get(title='Third')
-        userlist4 = UserList.objects.get(title='MyJobs')
-
-        #author rights
-        self.assertEqual(
-            userlist_access_check(user1.id, userlist3.id), 3
-        )
-
-        #readwrite rights
-        self.assertEqual(
-            userlist_access_check(user2.id, userlist3.id), 2
-        )
-
-        #readonly rights
-        self.assertEqual(
-            userlist_access_check(user2.id, userlist4.id), 1
-        )
-
-        #no access
-        self.assertEqual(
-            userlist_access_check(user3.id, userlist3.id), 0
-        )
-
-
-        

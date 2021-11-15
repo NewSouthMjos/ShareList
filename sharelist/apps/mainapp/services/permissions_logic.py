@@ -1,14 +1,41 @@
 from django.db import IntegrityError, transaction
 from django.forms.formsets import BaseFormSet
 from django.forms import formset_factory
-from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
+from django.core.exceptions import (
+    PermissionDenied, ObjectDoesNotExist, ValidationError
+)
 
 from accounts.models import CustomUser
 from mainapp.models import (
     UserList, UserListCustomUser_ReadOnly, UserListCustomUser_ReadWrite
 )
-from mainapp.services.list_item_logic import userlist_access_check
 from mainapp.forms import UserPermissionForm
+
+
+class PermissionAlreadyGranted(Exception):
+    """Exception for cauth already existing permissions"""
+
+def userlist_access_check(user_id:int, userlist_id: int) -> int:
+    """
+    Check that userlist_id is exists.
+    Return a int stands for access rights for passed userlist_id for
+    passed user (user_id).
+    0 is no rights,
+    1 is only read,
+    2 is readwrite,
+    3 - user is author of this list (all rights)
+    """
+    try:
+        userlist_obj = UserList.objects.get(id=userlist_id)
+    except UserList.DoesNotExist:
+        raise ObjectDoesNotExist("List %s not found" % userlist_id)
+    if userlist_obj.author.id == user_id:
+        return 3
+    if len(list(UserListCustomUser_ReadWrite.objects.filter(customuser=user_id, userlist=userlist_id))) > 0:
+        return 2
+    if len(list(UserListCustomUser_ReadOnly.objects.filter(customuser=user_id, userlist=userlist_id))) > 0:
+        return 1
+    return 0
 
 def add_permission(
         userlist_id: int, user_id: int, sharelink: str, mode: str):
@@ -36,15 +63,15 @@ def add_permission(
         raise ObjectDoesNotExist('User not found')
     jointable_records = JoinTable.objects.filter(customuser=user, userlist=changing_userlist.id)
     if len(jointable_records) >= 1:
-        raise ValueError("Permission already granted")
+        raise PermissionAlreadyGranted("Permission already granted")
 
     #check the access, to raise error if access level is already higher
     if mode == "readonly":
         if userlist_access_check(user_id, userlist_id) >= 1:
-            raise ValueError("You already have higher privileges for this list")
+            raise PermissionAlreadyGranted("You already have higher privileges for this list")
     if mode == "readwrite":
         if userlist_access_check(user_id, userlist_id) >= 2:
-            raise ValueError("You already have higher privileges for this list")
+            raise PermissionAlreadyGranted("You already have higher privileges for this list")
 
 
     with transaction.atomic():
@@ -135,6 +162,8 @@ def set_permission(
             table_sharelink = changing_userlist.sharelink_readonly
             add_permission(userlist_id, user_id, table_sharelink, "readonly")
             return True
+        except PermissionAlreadyGranted as error:
+            return True
         except (LookupError, ValueError, ObjectDoesNotExist) as error:
             raise ValueError("Error while adding permissions: "+ str(error.args))
 
@@ -146,6 +175,8 @@ def set_permission(
         try:
             table_sharelink = changing_userlist.sharelink_readwrite
             add_permission(userlist_id, user_id, table_sharelink, "readwrite")
+            return True
+        except PermissionAlreadyGranted as error:
             return True
         except (LookupError, ValueError, ObjectDoesNotExist) as error:
             raise ValueError("Error while adding permissions: " + str(error.args))
@@ -161,16 +192,39 @@ def get_permissions(userlist_id: int, acting_user_id: int):
     permissions_formset = formset_factory(
         UserPermissionForm, formset=BaseFormSet, extra=0
     )
-    r_records = UserListCustomUser_ReadOnly.objects.filter(userlist=userlist)
-    rw_records = UserListCustomUser_ReadWrite.objects.filter(userlist=userlist)
+    userlist_obj = UserList.objects.get(id=userlist_id)
+    r_records = UserListCustomUser_ReadOnly.objects.filter(userlist=userlist_obj)
+    rw_records = UserListCustomUser_ReadWrite.objects.filter(userlist=userlist_obj)
     permissions_data = []
     for record in rw_records:
         permissions_data.append({'username': record.customuser,
+                                 'username_id': record.customuser.id,
                                  'access': 'readwrite'})
     for record in r_records:
         permissions_data.append({'username': record.customuser,
+                                 'username_id': record.customuser.id,
                                  'access': 'readonly'})
     return permissions_formset(initial=permissions_data)
 
 def save_permissions(request, userlist_id: int):
-    """saves all access options for userlist"""
+    """Saves all access options for userlist"""
+    permissions_formset = formset_factory(
+        UserPermissionForm, formset=BaseFormSet
+    )
+    permissions_formset_obj = permissions_formset(request.POST)
+    if not(permissions_formset_obj.is_valid()):
+        print(permissions_formset_obj)
+        raise ValidationError('form is not valid')
+        #
+    for permissions_form in permissions_formset_obj:
+        try:
+            username_id = permissions_form.cleaned_data.get('username_id')
+            user_obj = CustomUser.objects.get(id=username_id)
+        except CustomUser.DoesNotExist:
+            raise ObjectDoesNotExist("User with id %s not found to save" % username_id)
+        set_permission(
+            userlist_id,
+            request.user.id,
+            user_obj.id,
+            permissions_form.cleaned_data.get('access'),
+        )

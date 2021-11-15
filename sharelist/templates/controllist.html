@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <form action="" method="post">{% csrf_token %}
+	{{ permissions_formset.management_form  }}
 	<p>Список "{{ userlist_form.title.value }}"</p>
 	<p>Поделиться списком:</p>
 	<table>
@@ -15,9 +16,20 @@
 	</table>
 	{% if permissions_formset|length > 0 %}
 	<p>Пользователи, имеющие доступ к данному списку:</p>
+		
+		<table>
+		<tr>
+			<td>Пользователь</td>
+			<td>Доступ</td>
+		</tr>
 		{% for user_record in permissions_formset %}
-				{{ user_record.as_table }}
+			<tr>
+				<td>{{ user_record.username.value }}</td>
+				<td>{{ user_record.access }}</td>
+				{{ user_record.username_id }}
+			</tr>
 		{% endfor %}
+		</table>
 	{% else %}
 	Пока никто из пользователей не получил доступ к данному списку
 	{% endif %}

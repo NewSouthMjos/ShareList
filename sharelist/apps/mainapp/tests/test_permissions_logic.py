@@ -1,7 +1,7 @@
 from django.test import TestCase
 from accounts.models import CustomUser
 from mainapp.models import UserList, UserListCustomUser_ReadOnly, UserListCustomUser_ReadWrite
-from mainapp.services.permissions_logic import add_permission, detele_permission, set_permission
+from mainapp.services.permissions_logic import add_permission, detele_permission, set_permission, PermissionAlreadyGranted, userlist_access_check
 from django.utils import timezone
 from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 
@@ -55,6 +55,33 @@ class TestPermissionsLogicCase(TestCase):
         )
         userlistcustomuser_readwrite_obj.save()
 
+    def test_userlist_access_check(self):
+        user1 = CustomUser.objects.get(username='testuser1')
+        user2 = CustomUser.objects.get(username='testuser2')
+        user3 = CustomUser.objects.get(username='testuser3')
+        userlist1 = UserList.objects.get(title='First')
+        userlist2 = UserList.objects.get(title='Second')
+
+        #author rights
+        self.assertEqual(
+            userlist_access_check(user1.id, userlist1.id), 3
+        )
+
+        #readwrite rights
+        self.assertEqual(
+            userlist_access_check(user3.id, userlist1.id), 2
+        )
+
+        #readonly rights
+        self.assertEqual(
+            userlist_access_check(user2.id, userlist1.id), 1
+        )
+
+        #no access
+        self.assertEqual(
+            userlist_access_check(user3.id, userlist2.id), 0
+        )
+
     def test_UserListCustomUser_ReadOnly_listnotfound(self):
         user = CustomUser.objects.get(username="testuser2")
         try:
@@ -84,7 +111,7 @@ class TestPermissionsLogicCase(TestCase):
         try:
             add_permission(userlist_id=userlist1.id, user_id=user.id, sharelink=right_sharelink, mode="readonly")
             self.assertTrue(False)
-        except ValueError as error:
+        except PermissionAlreadyGranted as error:
             self.assertTrue(True, msg=error.args)
 
     def test_UserListCustomUser_ReadOnly_wrongcode(self):
@@ -104,7 +131,7 @@ class TestPermissionsLogicCase(TestCase):
         try:
             add_permission(userlist_id=userlist1.id, user_id=user.id, sharelink=right_sharelink, mode="readonly")
             self.assertTrue(False)
-        except ValueError as error:
+        except PermissionAlreadyGranted as error:
             self.assertTrue(True, msg=error.args)
 
     def test_UserListCustomUser_ReadOnly_rightwork(self):
@@ -240,7 +267,7 @@ class TestPermissionsLogicCase(TestCase):
         #adding same permission for 2th time should case error:
         try:
             set_permission(userlist_id=userlist2.id, acting_user_id=acting_user.id, user_id=user.id, mode="readonly")
-        except (ValueError, LookupError, ObjectDoesNotExist) as error:
+        except PermissionAlreadyGranted as error:
             self.assertTrue(True)
 
     def test_set_permissions_readwrite(self):
@@ -250,7 +277,7 @@ class TestPermissionsLogicCase(TestCase):
 
         try:
             set_permission(userlist_id=userlist2.id, acting_user_id=acting_user.id, user_id=user.id, mode="readwrite")
-        except (ValueError, LookupError, ObjectDoesNotExist) as error:
+        except (ValueError, LookupError, ObjectDoesNotExist, PermissionAlreadyGranted) as error:
             self.assertTrue(False, msg="Permissions didnt setted. Permissions_logic error: " + str(error.args))
         jointable_record = UserListCustomUser_ReadOnly.objects.filter(customuser=user, userlist=userlist2)
         if len(jointable_record) >= 1:

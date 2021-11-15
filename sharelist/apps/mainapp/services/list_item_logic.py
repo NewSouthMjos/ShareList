@@ -10,6 +10,7 @@ from mainapp.models import (
     UserList, UserItem, UserListCustomUser_ReadOnly,
     UserListCustomUser_ReadWrite)
 from mainapp.forms import UserListForm, UserItemForm, UserListShareForm
+from mainapp.services.permissions_logic import userlist_access_check
 from accounts.models import CustomUser
 
 
@@ -153,28 +154,6 @@ def delete_userlist(user_id: int, userlist_id: int):
     except UserList.DoesNotExist:
         raise ObjectDoesNotExist("List %s not found" % userlist_id)
     userlist.delete()
-
-def userlist_access_check(user_id:int, userlist_id: int) -> int:
-    """
-    Check that userlist_id is exists.
-    Return a int stands for access rights for passed userlist_id for
-    passed user (user_id).
-    0 is no rights,
-    1 is only read,
-    2 is readwrite,
-    3 - user is author of this list (all rights)
-    """
-    try:
-        userlist_obj = UserList.objects.get(id=userlist_id)
-    except UserList.DoesNotExist:
-        raise ObjectDoesNotExist("List %s not found" % userlist_id)
-    if userlist_obj.author.id == user_id:
-        return 3
-    if len(list(UserListCustomUser_ReadWrite.objects.filter(customuser=user_id, userlist=userlist_id))) > 0:
-        return 2
-    if len(list(UserListCustomUser_ReadOnly.objects.filter(customuser=user_id, userlist=userlist_id))) > 0:
-        return 1
-    return 0
 
 def get_userlist_detail_sharelinks(request, userlist_id: int):
     """

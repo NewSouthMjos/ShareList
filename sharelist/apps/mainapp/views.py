@@ -10,11 +10,12 @@ from django.forms import formset_factory
 from mainapp.services.list_item_logic import (
     get_all_userlists, get_userlist_detail_context, 
     get_userlist_detail_maininfo, save_userlist_detail_all,
-    delete_userlist, create_userlist, userlist_access_check,
+    delete_userlist, create_userlist,
     get_userlist_detail_sharelinks
 )
 from mainapp.services.permissions_logic import (
-    add_permission_checker, add_permission, detele_permission, get_permissions
+    add_permission_checker, add_permission, detele_permission, get_permissions,
+    save_permissions, userlist_access_check
 )
 from mainapp.forms import UserListForm, UserItemForm
 
@@ -177,4 +178,9 @@ class UserListControl(LoginRequiredMixin, BaseView):
                         request.user.id)
                    }
         return render(request, "controllist.html", context)
+
+    def post(self, request, userlist_id):
+        save_permissions(request, userlist_id)
+        return redirect(reverse('controllist', args=[userlist_id]))
+
 

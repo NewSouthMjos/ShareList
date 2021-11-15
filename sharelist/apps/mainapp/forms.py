@@ -1,4 +1,5 @@
 from django import forms
+from django.forms.widgets import HiddenInput
 from mainapp.models import UserList
 from django.utils import timezone
 from accounts.models import CustomUser
@@ -72,13 +73,17 @@ class UserPermissionForm(forms.Form):
     """Form for representing signgle row - user access in list options"""
     username = forms.CharField(
         max_length=50,
-        required=True
+        required=False
+    )
+    username_id = forms.IntegerField(
+        required=True,
+        widget=forms.HiddenInput()
     )
     access = forms.ChoiceField(
         choices=[
             ('readwrite', 'Чтение/запись'),
             ('readonly', 'Только чтение'),
-            ('no_rights', 'Удалить доступ'),
+            ('none', 'Удалить доступ'),
         ],
         required=True
     )
