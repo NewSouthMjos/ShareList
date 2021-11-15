@@ -64,14 +64,14 @@ def get_userlist_detail_items(user_id: int, userlist_id: int):
     Return item formset, that contains data from
     passed userlist_id
     """
-    ItemFormSet = formset_factory(UserItemForm, formset=BaseFormSet, extra=1)
+    item_formset = formset_factory(UserItemForm, formset=BaseFormSet, extra=1)
     items_in_requested_list = UserItem.objects.filter(
         related_userlist=userlist_id
     )
     item_data = [{'text': i.text, 'status': i.status}
         for i in items_in_requested_list
     ]
-    return ItemFormSet(initial=item_data)
+    return item_formset(initial=item_data)
 
 def save_userlist_detail_all(request, userlist_id):
     """
@@ -156,6 +156,7 @@ def delete_userlist(user_id: int, userlist_id: int):
 
 def userlist_access_check(user_id:int, userlist_id: int) -> int:
     """
+    Check that userlist_id is exists.
     Return a int stands for access rights for passed userlist_id for
     passed user (user_id).
     0 is no rights,
@@ -163,7 +164,10 @@ def userlist_access_check(user_id:int, userlist_id: int) -> int:
     2 is readwrite,
     3 - user is author of this list (all rights)
     """
-    userlist_obj = UserList.objects.get(id=userlist_id)
+    try:
+        userlist_obj = UserList.objects.get(id=userlist_id)
+    except UserList.DoesNotExist:
+        raise ObjectDoesNotExist("List %s not found" % userlist_id)
     if userlist_obj.author.id == user_id:
         return 3
     if len(list(UserListCustomUser_ReadWrite.objects.filter(customuser=user_id, userlist=userlist_id))) > 0:

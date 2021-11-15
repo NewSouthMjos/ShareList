@@ -14,7 +14,7 @@ from mainapp.services.list_item_logic import (
     get_userlist_detail_sharelinks
 )
 from mainapp.services.permissions_logic import (
-    add_permission_checker, add_permission, detele_permission
+    add_permission_checker, add_permission, detele_permission, get_permissions
 )
 from mainapp.forms import UserListForm, UserItemForm
 
@@ -172,6 +172,9 @@ class UserListControl(LoginRequiredMixin, BaseView):
                    'userlistshareform': get_userlist_detail_sharelinks(
                         request,
                         userlist_id),
+                    'permissions_formset': get_permissions(
+                        userlist_id,
+                        request.user.id)
                    }
         return render(request, "controllist.html", context)
 

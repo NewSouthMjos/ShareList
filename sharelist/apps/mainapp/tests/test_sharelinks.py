@@ -1,8 +1,9 @@
 from django.test import TestCase
 from accounts.models import CustomUser
 from mainapp.models import UserList, UserListCustomUser_ReadOnly, UserListCustomUser_ReadWrite
-from mainapp.services.permissions_logic import add_permission, detele_permission, set_permissions
+from mainapp.services.permissions_logic import add_permission, detele_permission, set_permission
 from django.utils import timezone
+from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 
 
 class TestPermissionsLogicCase(TestCase):
@@ -59,7 +60,7 @@ class TestPermissionsLogicCase(TestCase):
         try:
             add_permission(userlist_id=765076763, user_id=user.id, sharelink="QGRPgaRr3-uhfjWQ", mode="readonly")
             self.assertTrue(False)
-        except LookupError as error:
+        except ObjectDoesNotExist as error:
             self.assertTrue(True, msg=error.args)
 
     def test_UserListCustomUser_ReadOnly_wrong_sharelink(self):
@@ -113,7 +114,7 @@ class TestPermissionsLogicCase(TestCase):
         try:
             add_permission(userlist_id=userlist2.id, user_id=user.id, sharelink=right_sharelink, mode="readonly")
             self.assertTrue(True)    
-        except (ValueError, LookupError) as error:
+        except (ValueError, LookupError, ObjectDoesNotExist) as error:
             self.assertTrue(False, msg=error.args)
         try:
             UserListCustomUser_ReadOnly.objects.get(customuser=user.id, userlist=userlist2.id)
@@ -128,7 +129,7 @@ class TestPermissionsLogicCase(TestCase):
         try:
             add_permission(userlist_id=userlist2.id, user_id=user.id, sharelink=right_sharelink, mode="readwrite")
             self.assertTrue(True)    
-        except (ValueError, LookupError) as error:
+        except (ValueError, LookupError, ObjectDoesNotExist) as error:
             self.assertTrue(False, msg=error.args)
         try:
             UserListCustomUser_ReadWrite.objects.get(customuser=user.id, userlist=userlist2.id)
@@ -144,7 +145,7 @@ class TestPermissionsLogicCase(TestCase):
         try:
             detele_permission(userlist_id=765076763, acting_user_id=user_act.id, user_id=user.id, mode="readonly")
             self.assertTrue(False, msg="list doesnt exist, but deleted?")
-        except (ValueError, LookupError) as error:
+        except (ValueError, ObjectDoesNotExist) as error:
             self.assertTrue(True)
 
         #wrong mode passed
@@ -160,7 +161,7 @@ class TestPermissionsLogicCase(TestCase):
             detele_permission(userlist_id=userlist1.id, acting_user_id=user3.id, user_id=user.id, mode="readonly")
             self.assertTrue(False, msg="wrong author passed and \
             user is not accesseble to delete permission, but deleted?")
-        except (ValueError, LookupError) as error:
+        except (ValueError, LookupError, PermissionDenied) as error:
             self.assertTrue(True)
         
         #rightwork
@@ -177,30 +178,30 @@ class TestPermissionsLogicCase(TestCase):
 
         #wrong author
         try:
-            set_permissions(userlist_id=userlist2.id, acting_user_id=user.id, user_id=user.id, mode="none")
+            set_permission(userlist_id=userlist2.id, acting_user_id=user.id, user_id=user.id, mode="none")
             self.assertTrue(False, msg="Wrong author can sets permissions for list?")
-        except ValueError as error:
+        except PermissionDenied as error:
             self.assertTrue(True)
 
         #wrong list
         try:
-            set_permissions(userlist_id=34532342, acting_user_id=acting_user.id, user_id=user.id, mode="none")
+            set_permission(userlist_id=34532342, acting_user_id=acting_user.id, user_id=user.id, mode="none")
             self.assertTrue(False, msg="Wrong user passed, but no errors?")
-        except LookupError as error:
+        except ObjectDoesNotExist as error:
             self.assertTrue(True)
 
         #wrong mode passed
         try:
-            set_permissions(userlist_id=userlist2.id, acting_user_id=acting_user.id, user_id=user.id, mode="readwriteonly")
+            set_permission(userlist_id=userlist2.id, acting_user_id=acting_user.id, user_id=user.id, mode="readwriteonly")
             self.assertTrue(False, msg="Wrong mode passed, but no errors?")
         except ValueError as error:
             self.assertTrue(True)
 
         #wrong user passed
         try:
-            set_permissions(userlist_id=userlist2.id, acting_user_id=acting_user.id, user_id=34532342, mode="readwrite")
+            set_permission(userlist_id=userlist2.id, acting_user_id=acting_user.id, user_id=34532342, mode="readwrite")
             self.assertTrue(False, msg="Wround user id passed, but no errors?")
-        except (ValueError, LookupError) as error:
+        except (ValueError, LookupError, ObjectDoesNotExist) as error:
             self.assertTrue(True)
             
 
@@ -210,8 +211,8 @@ class TestPermissionsLogicCase(TestCase):
         user = CustomUser.objects.get(username="testuser2")
 
         try:
-            set_permissions(userlist_id=userlist2.id, acting_user_id=acting_user.id, user_id=user.id, mode="none")
-        except (ValueError, LookupError) as error:
+            set_permission(userlist_id=userlist2.id, acting_user_id=acting_user.id, user_id=user.id, mode="none")
+        except (ValueError, LookupError, ObjectDoesNotExist) as error:
             self.assertTrue(False, msg="Permissions didnt setted. Permissions_logic error: " + str(error.args))
         jointable_record = UserListCustomUser_ReadOnly.objects.filter(customuser=user.id, userlist=userlist2.id)
         if len(jointable_record) >= 1:
@@ -226,8 +227,8 @@ class TestPermissionsLogicCase(TestCase):
         user = CustomUser.objects.get(username="testuser2")
 
         try:
-            set_permissions(userlist_id=userlist2.id, acting_user_id=acting_user.id, user_id=user.id, mode="readonly")
-        except (ValueError, LookupError) as error:
+            set_permission(userlist_id=userlist2.id, acting_user_id=acting_user.id, user_id=user.id, mode="readonly")
+        except (ValueError, LookupError, ObjectDoesNotExist) as error:
             self.assertTrue(False, msg="Permissions didnt setted. Permissions_logic error: " + str(error.args))
         jointable_record = UserListCustomUser_ReadOnly.objects.filter(customuser=user.id, userlist=userlist2.id)
         if len(jointable_record) != 1:
@@ -238,8 +239,8 @@ class TestPermissionsLogicCase(TestCase):
 
         #adding same permission for 2th time should case error:
         try:
-            set_permissions(userlist_id=userlist2.id, acting_user_id=acting_user.id, user_id=user.id, mode="readonly")
-        except (ValueError, LookupError) as error:
+            set_permission(userlist_id=userlist2.id, acting_user_id=acting_user.id, user_id=user.id, mode="readonly")
+        except (ValueError, LookupError, ObjectDoesNotExist) as error:
             self.assertTrue(True)
 
     def test_set_permissions_readwrite(self):
@@ -248,8 +249,8 @@ class TestPermissionsLogicCase(TestCase):
         user = CustomUser.objects.get(username="testuser2")
 
         try:
-            set_permissions(userlist_id=userlist2.id, acting_user_id=acting_user.id, user_id=user.id, mode="readwrite")
-        except (ValueError, LookupError) as error:
+            set_permission(userlist_id=userlist2.id, acting_user_id=acting_user.id, user_id=user.id, mode="readwrite")
+        except (ValueError, LookupError, ObjectDoesNotExist) as error:
             self.assertTrue(False, msg="Permissions didnt setted. Permissions_logic error: " + str(error.args))
         jointable_record = UserListCustomUser_ReadOnly.objects.filter(customuser=user, userlist=userlist2)
         if len(jointable_record) >= 1:

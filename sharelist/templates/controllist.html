@@ -13,6 +13,15 @@
 		<td>{{ userlistshareform.sharelink_readwrite }}</td>
 	  </tr>
 	</table>
+	{% if permissions_formset|length > 0 %}
+	<p>Пользователи, имеющие доступ к данному списку:</p>
+		{% for user_record in permissions_formset %}
+				{{ user_record.as_table }}
+		{% endfor %}
+	{% else %}
+	Пока никто из пользователей не получил доступ к данному списку
+	{% endif %}
+	
 	<p><input type="submit" value="Сохранить"></p>
 
 </form>

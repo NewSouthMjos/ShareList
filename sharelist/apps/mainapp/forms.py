@@ -67,3 +67,18 @@ class UserListShareForm(forms.Form):
             }),
         required=False
     )
+
+class UserPermissionForm(forms.Form):
+    """Form for representing signgle row - user access in list options"""
+    username = forms.CharField(
+        max_length=50,
+        required=True
+    )
+    access = forms.ChoiceField(
+        choices=[
+            ('readwrite', 'Чтение/запись'),
+            ('readonly', 'Только чтение'),
+            ('no_rights', 'Удалить доступ'),
+        ],
+        required=True
+    )
