@@ -78,14 +78,8 @@ class DetailList(LoginRequiredMixin, BaseView):
         return render(request, "detailpage.html", context)
 
     def post(self, request, userlist_id):
-        userlist_form, item_formset = save_userlist_detail_all(
-            request, userlist_id
-        )
-        context = {
-            "userlist_form": userlist_form,
-            "item_formset": item_formset,
-        }
-        return render(request, "detailpage.html", context)
+        save_userlist_detail_all(request, userlist_id)
+        return redirect(reverse("detailpage", args=[userlist_id]))
 
 
 class CreateList(LoginRequiredMixin, BaseView):

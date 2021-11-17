@@ -73,25 +73,24 @@ def get_userlist_detail_maininfo(user_id: int, userlist_id: int):
     )
 
 
-def get_userlist_detail_items(user_id: int, userlist_id: int):
+def get_userlist_detail_items(user_id: int, userlist_id: int, extra=1):
     """
     Return item formset, that contains data from
     passed userlist_id
     """
-    item_formset = formset_factory(UserItemForm, formset=BaseFormSet, extra=1)
+    item_formset = formset_factory(UserItemForm, formset=BaseFormSet, extra=extra)
     items_in_requested_list = UserItem.objects.filter(
         related_userlist=userlist_id
     )
     item_data = [
-        {"text": i.text, "status": i.status} for i in items_in_requested_list
+        {"text": i.text, "status": i.status, 'useritem_id': i.id, 'updated_datetime': i.updated_datetime, 'last_update_author': i.last_update_author} for i in items_in_requested_list
     ]
     return item_formset(initial=item_data)
 
 
 def save_userlist_detail_all(request, userlist_id):
     """
-    Saves all information in userlist, include items,
-    and returns tuple of userlist form, item formset
+    Saves all information in userlist, include items
     """
 
     if userlist_access_check(request.user.id, userlist_id) < 2:
@@ -128,18 +127,41 @@ def save_userlist_detail_maininfo(request, userlist_id: int):
     userlist_obj.updated_datetime = timezone.now()
     userlist_obj.last_update_author = request.user
     userlist_obj.save()
-    return userlist_form
 
 
 def save_userlist_detail_items(request, userlist_id: int):
+    """Saves all items from request to userlist"""
     ItemFormSet = formset_factory(UserItemForm, formset=BaseFormSet)
+    #print(ItemFormSet)
+    #item_formset_f = get_userlist_detail_items(request.user.id, userlist_id, 1)
+    #print(item_formset_f)
     item_formset = ItemFormSet(request.POST)
     if not (item_formset.is_valid()):
-        print(item_formset)
+        #print(item_formset.total_error_count())
+        #print(item_formset.errors)
+        #print(item_formset.non_form_errors())
+        
         raise ValidationError("form is not valid")
     new_items = []
+    user_items_old_objects = UserItem.objects.filter(related_userlist=userlist_id)
     for item_form in item_formset:
         if item_form.cleaned_data.get("text"):
+
+            # Check if useritem has changed and exclude it, if it doenst:
+            useritem_id = item_form.cleaned_data.get("useritem_id")
+            print(f'useritem_id: {useritem_id}')
+            try:
+                item_obj = user_items_old_objects.get(id=useritem_id)
+                print(
+                    f'item_obj.text ={item_obj.text} =??= item_form.cleaned_data.get("text") = {item_form.cleaned_data.get("text")}'
+                )
+                if item_obj.text == item_form.cleaned_data.get("text"):
+                    user_items_old_objects = user_items_old_objects.exclude(id=useritem_id)
+                    continue
+            except UserItem.DoesNotExist:
+                pass
+            
+            # If something changed, add new item:
             new_items.append(
                 UserItem(
                     related_userlist=UserList.objects.get(id=userlist_id),
@@ -152,14 +174,13 @@ def save_userlist_detail_items(request, userlist_id: int):
     # Update items in transaction
     try:
         with transaction.atomic():
-            UserItem.objects.filter(related_userlist=userlist_id).delete()
+            user_items_old_objects.delete()
             UserItem.objects.bulk_create(new_items)
             # LOG MESSAGE ABOUT UPDATE HERE <---
 
     except IntegrityError:  # If the transaction failed
         # messages.error(request, '')
         item_formset.add_error(None, "Ошибка сохранения данных на сервере")
-    return item_formset
 
 
 def delete_userlist(user_id: int, userlist_id: int):

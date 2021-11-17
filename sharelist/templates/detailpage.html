@@ -10,6 +10,8 @@
 		<div class="item_formset">
 			{{ item.text }}
 			{{ item.status }}
+			{{ item.useritem_id }}
+			В последний раз обновлено пользователем {{ item.last_update_author.value }} в {{ item.updated_datetime.value }}
 		</div>
 	{% endfor %}
 	<div class='add_item'>
