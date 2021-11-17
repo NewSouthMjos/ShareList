@@ -149,13 +149,10 @@ def save_userlist_detail_items(request, userlist_id: int):
 
             # Check if useritem has changed and exclude it, if it doenst:
             useritem_id = item_form.cleaned_data.get("useritem_id")
-            print(f'useritem_id: {useritem_id}')
             try:
                 item_obj = user_items_old_objects.get(id=useritem_id)
-                print(
-                    f'item_obj.text ={item_obj.text} =??= item_form.cleaned_data.get("text") = {item_form.cleaned_data.get("text")}'
-                )
-                if item_obj.text == item_form.cleaned_data.get("text"):
+                if item_obj.text == item_form.cleaned_data.get("text")\
+                    and item_obj.status == item_form.cleaned_data.get("status"):
                     user_items_old_objects = user_items_old_objects.exclude(id=useritem_id)
                     continue
             except UserItem.DoesNotExist:
