@@ -6,6 +6,10 @@ name = "pypi"
 [packages]
 python-dotenv = "*"
 psycopg2 = "*"
+django = "*"
+django-extensions = "*"
+coverage = "*"
+whitenoise = "*"
 
 [dev-packages]
 

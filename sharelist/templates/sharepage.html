@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+<form action="" method="post">{% csrf_token %}
+	
+	{% if mode == "readonly" %}
+		<p>Хотите получить доступ на чтение к списку "{{ title }}"?</p>
+	{% elif mode == "readwrite" %}
+		<p>Хотите получить доступ на чтение и запись к списку "{{ title }}"?</p>
+	{% endif %}
+	<input type="hidden" name="mode" value={{ mode }} />
+	<input type="submit" value="Получить доступ">
+	<p>Описание списка:</p>
+	<p>{{ description }}</p>
+
+</form>
+
+
+{% endblock content %}
