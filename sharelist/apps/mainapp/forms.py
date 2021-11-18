@@ -28,6 +28,9 @@ class UserItemForm(forms.Form):
         ],
         required=False,
     )
+    useritem_id = forms.IntegerField(required=False, widget=forms.HiddenInput())
+    updated_datetime = forms.DateTimeField(required=False)
+    last_update_author = forms.CharField(required=False)
 
 
 class UserListForm(forms.Form):
@@ -54,6 +57,8 @@ class UserListForm(forms.Form):
         ),
         required=False,
     )
+    updated_datetime = forms.DateTimeField(required=False)
+    last_update_author = forms.CharField(required=False)
 
 
 class UserListShareForm(forms.Form):

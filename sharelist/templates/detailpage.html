@@ -2,14 +2,18 @@
 {% load static %}
 {% block content %}
 <form action="" method="post">{% csrf_token %}
-
-	{{ userlist_form.as_p }}
+	<p>Название:</p>
+	<p>{{ userlist_form.title }}</p>
+	<p>Описание: {{ userlist_form.description }}</p>
+	<p>В последний раз список обновлен пользователем {{ userlist_form.last_update_author.value }} в {{ userlist_form.updated_datetime.value }}</p>
 	{{ item_formset.management_form  }}
 	<p>Пункты списка:</p>
 	{% for item in item_formset %}
 		<div class="item_formset">
 			{{ item.text }}
 			{{ item.status }}
+			{{ item.useritem_id }}
+			Последнее обновление пункта: пользователем {{ item.last_update_author.value }} в {{ item.updated_datetime.value }}
 		</div>
 	{% endfor %}
 	<div class='add_item'>
