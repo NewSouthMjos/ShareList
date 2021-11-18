@@ -226,9 +226,7 @@ class TestListItemLogicCase(TestCase):
         )
         request.user = user1
         try:
-            form = save_userlist_detail_maininfo(request, userlist3.id)
-            self.assertEqual(form.cleaned_data.get("title"), "POST123")
-            self.assertEqual(form.cleaned_data.get("description"), "TEST_DESC")
+            save_userlist_detail_maininfo(request, userlist3.id)
 
         except ValidationError:
             self.assertTrue(False, msg="Didnt saved userlist_detail_maininfo!")
@@ -256,11 +254,7 @@ class TestListItemLogicCase(TestCase):
         request = factory.post("", data)
         request.user = user1
         try:
-            item_formset = save_userlist_detail_items(request, userlist.id)
-            self.assertEqual(item_formset[0].cleaned_data.get("text"), "A")
-            self.assertEqual(
-                item_formset[1].cleaned_data.get("status"), "in_progress"
-            )
+            save_userlist_detail_items(request, userlist.id)
         except IntegrityError:
             self.assertTrue(False, msg="Transaction failed")
 

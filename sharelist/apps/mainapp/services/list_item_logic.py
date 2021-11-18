@@ -69,6 +69,8 @@ def get_userlist_detail_maininfo(user_id: int, userlist_id: int):
         initial={
             "title": userlist_obj.title,
             "description": userlist_obj.description,
+            "last_update_author":userlist_obj.last_update_author,
+            "updated_datetime":userlist_obj.updated_datetime,
         }
     )
 

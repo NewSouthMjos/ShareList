@@ -39,8 +39,8 @@ def userlist_access_check(user_id: int, userlist_id: int) -> int:
 
     #this is my approach to format code:
     if len(list(UserListCustomUser_ReadWrite.objects.filter(
-                customuser=user_id, userlist=userlist_id))
-            > 0 ):
+        customuser=user_id, userlist=userlist_id
+        ))) > 0:
         return 2
     #and this is what Black done, witch is better?
     if (
