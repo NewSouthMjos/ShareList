@@ -77,15 +77,17 @@ def get_userlist_detail_maininfo(user_id: int, userlist_id: int):
     )
 
 
-def get_userlist_detail_items(user_id: int, userlist_id: int, extra=1):
+def get_userlist_detail_items(user_id: int, userlist_id: int):
     """
     Return item formset, that contains data from
     passed userlist_id
     """
-    item_formset = formset_factory(UserItemForm, formset=BaseFormSet, extra=extra)
     items_in_requested_list = UserItem.objects.filter(
         related_userlist=userlist_id
     )
+    extra = 1 if len(items_in_requested_list) == 0 else 0
+    item_formset = formset_factory(UserItemForm, formset=BaseFormSet, extra=extra)
+    
     item_data = [
         {"text": i.text, "status": i.status,
         'useritem_id': i.id,
