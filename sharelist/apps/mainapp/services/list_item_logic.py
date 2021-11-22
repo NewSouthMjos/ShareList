@@ -32,17 +32,19 @@ def get_all_userlists(user_id: int):
     Return all the userlists, that user can see
     (he is author, he has permissions to read or read/write)
     """
-    userlists_byauthor = UserList.objects.filter(author=user_id)
+    userlists_byauthor = UserList.objects.filter(author=user_id).order_by(
+        '-updated_datetime'
+    )
     userlists_readonly = UserList.objects.filter(
         userlistcustomuser_readonly__in=UserListCustomUser_ReadOnly.objects.filter(
             customuser=user_id
         )
-    )
+    ).order_by('-updated_datetime')
     userlists_readwrite = UserList.objects.filter(
         userlistcustomuser_readwrite__in=UserListCustomUser_ReadWrite.objects.filter(
             customuser=user_id
         )
-    )
+    ).order_by('-updated_datetime')
     userlists = {
         "userlists_byauthor": userlists_byauthor,
         "userlists_readwrite": userlists_readwrite,
