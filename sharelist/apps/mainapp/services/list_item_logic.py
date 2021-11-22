@@ -87,8 +87,14 @@ def get_userlist_detail_items(user_id: int, userlist_id: int, extra=1):
         related_userlist=userlist_id
     )
     item_data = [
-        {"text": i.text, "status": i.status, 'useritem_id': i.id, 'updated_datetime': i.updated_datetime, 'last_update_author': i.last_update_author} for i in items_in_requested_list
+        {"text": i.text, "status": i.status,
+        'useritem_id': i.id,
+        'updated_datetime': i.updated_datetime,
+        'last_update_author': i.last_update_author,
+        'inner_order': i.inner_order
+        } for i in items_in_requested_list
     ]
+    item_data.sort(key=lambda x: x['inner_order'])
     return item_formset(initial=item_data)
 
 
@@ -156,16 +162,22 @@ def save_userlist_detail_items(request, userlist_id: int):
             try:
                 item_obj = user_items_old_objects.get(id=useritem_id)
                 if item_obj.text == item_form.cleaned_data.get("text")\
-                    and item_obj.status == item_form.cleaned_data.get("status"):
+                        and item_obj.status == item_form.cleaned_data.get("status")\
+                        and item_obj.inner_order == item_form.cleaned_data.get("inner_order"):
                     user_items_old_objects = user_items_old_objects.exclude(id=useritem_id)
                     continue
             except UserItem.DoesNotExist:
                 pass
             
             # If something changed, add new item:
+            if item_form.cleaned_data.get("inner_order") is None:
+                inner_order_value = 1
+            else:
+                inner_order_value = item_form.cleaned_data.get("inner_order")
             new_items.append(
                 UserItem(
                     related_userlist=UserList.objects.get(id=userlist_id),
+                    inner_order=inner_order_value,
                     text=item_form.cleaned_data.get("text"),
                     status=item_form.cleaned_data.get("status"),
                     last_update_author=request.user,
@@ -181,7 +193,7 @@ def save_userlist_detail_items(request, userlist_id: int):
 
     except IntegrityError:  # If the transaction failed
         # messages.error(request, '')
-        item_formset.add_error(None, "Ошибка сохранения данных на сервере")
+        raise IntegrityError( "Ошибка сохранения данных на сервере")
 
 
 def delete_userlist(user_id: int, userlist_id: int):

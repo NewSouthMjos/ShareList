@@ -31,6 +31,12 @@ class UserItemForm(forms.Form):
     useritem_id = forms.IntegerField(required=False, widget=forms.HiddenInput())
     updated_datetime = forms.DateTimeField(required=False)
     last_update_author = forms.CharField(required=False)
+    inner_order = forms.IntegerField(required=False, widget=forms.TextInput(
+        attrs={
+            "readonly": True,
+            "size": 2,
+        })
+    )
 
 
 class UserListForm(forms.Form):

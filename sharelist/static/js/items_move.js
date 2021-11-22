@@ -41,4 +41,20 @@ tasksListElement.addEventListener(`dragover`, (evt) => {
 		currentElement;
 		
 	tasksListElement.insertBefore(activeElement, nextElement);
+	//changind order id:
+  //activeElement.value = "30"
+  number_items_in_order();
+  //inner_order_input = activeElement.children[0]
+  /* if (inner_order_input.value === "2") {
+    inner_order_input.value = "50";
+  } */
 });
+
+function number_items_in_order() {
+  taskElements_2 = tasksListElement.querySelectorAll(`.tasks__item`);
+  let i = 1;
+  for (task of taskElements_2) {
+	task.children[0].value = i;
+	i++;
+}
+}
