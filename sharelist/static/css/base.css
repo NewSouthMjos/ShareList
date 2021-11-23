@@ -43,6 +43,10 @@ body {
   background-color: #dff2ef;
 
   transition: background-color 0.5s;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
 }
 
 .tasks__item:last-child {

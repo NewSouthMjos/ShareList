@@ -16,6 +16,7 @@ class UserItemForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 "placeholder": "Добавьте новый пункт...",
+                "class": "disable_drag",
             }
         ),
         required=False,
