@@ -315,3 +315,18 @@ function number_items_in_order() {
 	i++;
 }
 }
+
+
+/* //Disable drag on text element
+$(".disable_drag").on("touchstart mousedown", function(e) {
+    // Prevent carousel swipe
+    e.stopPropagation();
+}) */
+
+$('.disable_drag')
+        .on('focus', function(e) {
+            $(this).closest('.tasks__item').attr("draggable", false);
+        })
+        .on('blur', function(e) {
+            $(this).closest('.tasks__item').attr("draggable", true);
+        });
