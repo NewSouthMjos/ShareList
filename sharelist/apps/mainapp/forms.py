@@ -10,6 +10,11 @@ class UserItemForm(forms.Form):
     Form for representing user items in view, that user
     can change by himself
     """
+    def __init__(self, *args, readonly_flag=False, **kwargs):
+        super(UserItemForm, self).__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            if readonly_flag is True:
+                field.widget.attrs.update({'readonly':True})
 
     text = forms.CharField(
         max_length=1000,
@@ -46,6 +51,12 @@ class UserListForm(forms.Form):
     that user can change by himself
     """
 
+    def __init__(self, *args, readonly_flag=False, **kwargs):
+        super(UserListForm, self).__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            if readonly_flag is True:
+                field.widget.attrs.update({'readonly':True})
+    
     title = forms.CharField(
         max_length=100,
         widget=forms.TextInput(
