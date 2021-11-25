@@ -1,5 +1,3 @@
-from functools import partial, wraps
-
 from django.forms.formsets import BaseFormSet
 from django.forms import formset_factory
 from django.core.exceptions import (
@@ -66,7 +64,8 @@ def get_userlist_detail_context(user_id: int, userlist_id: int):
     }
 
 
-def get_userlist_detail_maininfo(user_id: int, userlist_id: int, readonly_flag: bool):
+def get_userlist_detail_maininfo(user_id: int, userlist_id: int,
+                                 readonly_flag: bool = False):
     """
     Return the form of UserList to be displayed
     """
@@ -88,7 +87,8 @@ def get_userlist_detail_maininfo(user_id: int, userlist_id: int, readonly_flag: 
     )
 
 
-def get_userlist_detail_items(user_id: int, userlist_id: int, readonly_flag: bool):
+def get_userlist_detail_items(user_id: int, userlist_id: int,
+                              readonly_flag: bool = False):
     """
     Return item formset, that contains data from
     passed userlist_id
@@ -97,11 +97,7 @@ def get_userlist_detail_items(user_id: int, userlist_id: int, readonly_flag: boo
         related_userlist=userlist_id
     )
     extra = 1 if len(items_in_requested_list) == 0 else 0
-
-    item_formset = formset_factory(
-        wraps(UserItemForm)(partial(UserItemForm, readonly_flag=readonly_flag)),
-        extra=extra,
-    )
+    item_formset = formset_factory(UserItemForm, extra=extra)
     item_data = [
         {"text": i.text, "status": i.status,
         'useritem_id': i.id,
@@ -111,7 +107,9 @@ def get_userlist_detail_items(user_id: int, userlist_id: int, readonly_flag: boo
         } for i in items_in_requested_list
     ]
     item_data.sort(key=lambda x: x['inner_order'])
-    return item_formset(initial=item_data)
+    return item_formset(initial=item_data, form_kwargs={
+        'readonly_flag': readonly_flag}
+    )
 
 
 def save_userlist_detail_all(request, userlist_id):
