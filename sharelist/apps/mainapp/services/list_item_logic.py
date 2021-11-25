@@ -19,30 +19,24 @@ from mainapp.services.permissions_logic import userlist_access_check
 from accounts.models import CustomUser
 
 
-def get_userlist_detail_context(user_id: int, userlist_id: int):
-    """Return all fields of passed userlist_id"""
-    return {
-        "userlist_form": get_userlist_detail_maininfo(user_id, userlist_id),
-        "item_formset": get_userlist_detail_items(user_id, userlist_id),
-    }
-
-
 def get_all_userlists(user_id: int):
     """
     Return all the userlists, that user can see
     (he is author, he has permissions to read or read/write)
     """
-    userlists_byauthor = UserList.objects.filter(author=user_id)
+    userlists_byauthor = UserList.objects.filter(author=user_id).order_by(
+        '-updated_datetime'
+    )
     userlists_readonly = UserList.objects.filter(
         userlistcustomuser_readonly__in=UserListCustomUser_ReadOnly.objects.filter(
             customuser=user_id
         )
-    )
+    ).order_by('-updated_datetime')
     userlists_readwrite = UserList.objects.filter(
         userlistcustomuser_readwrite__in=UserListCustomUser_ReadWrite.objects.filter(
             customuser=user_id
         )
-    )
+    ).order_by('-updated_datetime')
     userlists = {
         "userlists_byauthor": userlists_byauthor,
         "userlists_readwrite": userlists_readwrite,
@@ -51,10 +45,29 @@ def get_all_userlists(user_id: int):
     return userlists
 
 
-def get_userlist_detail_maininfo(user_id: int, userlist_id: int):
+def get_userlist_detail_context(user_id: int, userlist_id: int):
     """
-    Return the form of UserList to be displayed,
+    Return all fields of passed userlist_id,
     if there is access to this list
+    """
+    access_level = userlist_access_check(user_id, userlist_id)
+    if access_level == 1:
+        readonly_flag = True
+    elif access_level > 1:
+        readonly_flag = False
+    else:
+        raise PermissionDenied("You have no access to list #%s. Access level:" % userlist_id, access_level)
+    return {
+        "userlist_form": get_userlist_detail_maininfo(user_id, userlist_id, readonly_flag),
+        "item_formset": get_userlist_detail_items(user_id, userlist_id, readonly_flag),
+        "access_level": access_level,
+    }
+
+
+def get_userlist_detail_maininfo(user_id: int, userlist_id: int,
+                                 readonly_flag: bool = False):
+    """
+    Return the form of UserList to be displayed
     """
     # userlist exist check
     try:
@@ -63,9 +76,8 @@ def get_userlist_detail_maininfo(user_id: int, userlist_id: int):
         raise ObjectDoesNotExist(
             "The list #%s was not found on server." % userlist_id
         )
-    if userlist_access_check(user_id, userlist_id) < 1:
-        raise PermissionDenied("You have no access to list #%s." % userlist_id)
     return UserListForm(
+        readonly_flag=readonly_flag,
         initial={
             "title": userlist_obj.title,
             "description": userlist_obj.description,
@@ -75,19 +87,29 @@ def get_userlist_detail_maininfo(user_id: int, userlist_id: int):
     )
 
 
-def get_userlist_detail_items(user_id: int, userlist_id: int, extra=1):
+def get_userlist_detail_items(user_id: int, userlist_id: int,
+                              readonly_flag: bool = False):
     """
     Return item formset, that contains data from
     passed userlist_id
     """
-    item_formset = formset_factory(UserItemForm, formset=BaseFormSet, extra=extra)
     items_in_requested_list = UserItem.objects.filter(
         related_userlist=userlist_id
     )
+    extra = 1 if len(items_in_requested_list) == 0 else 0
+    item_formset = formset_factory(UserItemForm, extra=extra)
     item_data = [
-        {"text": i.text, "status": i.status, 'useritem_id': i.id, 'updated_datetime': i.updated_datetime, 'last_update_author': i.last_update_author} for i in items_in_requested_list
+        {"text": i.text, "status": i.status,
+        'useritem_id': i.id,
+        'updated_datetime': i.updated_datetime,
+        'last_update_author': i.last_update_author,
+        'inner_order': i.inner_order
+        } for i in items_in_requested_list
     ]
-    return item_formset(initial=item_data)
+    item_data.sort(key=lambda x: x['inner_order'])
+    return item_formset(initial=item_data, form_kwargs={
+        'readonly_flag': readonly_flag}
+    )
 
 
 def save_userlist_detail_all(request, userlist_id):
@@ -154,16 +176,22 @@ def save_userlist_detail_items(request, userlist_id: int):
             try:
                 item_obj = user_items_old_objects.get(id=useritem_id)
                 if item_obj.text == item_form.cleaned_data.get("text")\
-                    and item_obj.status == item_form.cleaned_data.get("status"):
+                        and item_obj.status == item_form.cleaned_data.get("status")\
+                        and item_obj.inner_order == item_form.cleaned_data.get("inner_order"):
                     user_items_old_objects = user_items_old_objects.exclude(id=useritem_id)
                     continue
             except UserItem.DoesNotExist:
                 pass
             
             # If something changed, add new item:
+            if item_form.cleaned_data.get("inner_order") is None:
+                inner_order_value = 1
+            else:
+                inner_order_value = item_form.cleaned_data.get("inner_order")
             new_items.append(
                 UserItem(
                     related_userlist=UserList.objects.get(id=userlist_id),
+                    inner_order=inner_order_value,
                     text=item_form.cleaned_data.get("text"),
                     status=item_form.cleaned_data.get("status"),
                     last_update_author=request.user,
@@ -179,7 +207,7 @@ def save_userlist_detail_items(request, userlist_id: int):
 
     except IntegrityError:  # If the transaction failed
         # messages.error(request, '')
-        item_formset.add_error(None, "Ошибка сохранения данных на сервере")
+        raise IntegrityError( "Ошибка сохранения данных на сервере")
 
 
 def delete_userlist(user_id: int, userlist_id: int):

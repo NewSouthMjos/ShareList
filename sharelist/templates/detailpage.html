@@ -8,28 +8,35 @@
 	<p>В последний раз список обновлен пользователем {{ userlist_form.last_update_author.value }} в {{ userlist_form.updated_datetime.value }}</p>
 	{{ item_formset.management_form  }}
 	<p>Пункты списка:</p>
-	{% for item in item_formset %}
-		<div class="item_formset">
-			{{ item.text }}
-			{{ item.status }}
-			{{ item.useritem_id }}
-			Последнее обновление пункта: пользователем {{ item.last_update_author.value }} в {{ item.updated_datetime.value }}
-		</div>
-	{% endfor %}
+	<ul class="tasks__list">
+		{% for item in item_formset %}
+			<li class="tasks__item">
+				{{ item.inner_order }}
+				{{ item.text }}
+				{{ item.status }}
+				{{ item.useritem_id }}
+				Последнее обновление пункта: пользователем {{ item.last_update_author.value }} в {{ item.updated_datetime.value }}
+			</li>
+		{% endfor %}
+	</ul>
 	<div class='add_item'>
 	<div>
+	{% if access_level > 2 %}
 	<input type="submit" value="Save">
+	{% endif %}
 	
 	
 </form>
 
 <!-- Include formset plugin - including jQuery dependency -->
+{% if access_level > 2 %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-<script src="{% static 'jquery.formset.js' %}"></script>
+<script src="{% static 'js/jquery.formset.js' %}"></script>
 <script>
-    $('.item_formset').formset({
+    $('.tasks__item').formset({
         deleteText: 'Удалить',
 		addText: 'Добавить пункт',
     });
 </script>
+{% endif %}
 {% endblock content %}

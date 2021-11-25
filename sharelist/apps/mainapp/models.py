@@ -59,6 +59,7 @@ class UserItem(models.Model):
         on_delete=models.CASCADE,
     )
     updated_datetime = models.DateTimeField()
+    inner_order = models.PositiveSmallIntegerField(default=1)
 
 
 class UserListCustomUser_ReadOnly(models.Model):

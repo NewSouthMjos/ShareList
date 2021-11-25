@@ -10,12 +10,18 @@ class UserItemForm(forms.Form):
     Form for representing user items in view, that user
     can change by himself
     """
+    def __init__(self, *args, readonly_flag=False, **kwargs):
+        super(UserItemForm, self).__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            if readonly_flag is True:
+                field.widget.attrs.update({'readonly':True})
 
     text = forms.CharField(
         max_length=1000,
         widget=forms.TextInput(
             attrs={
                 "placeholder": "Добавьте новый пункт...",
+                "class": "disable_drag",
             }
         ),
         required=False,
@@ -31,6 +37,12 @@ class UserItemForm(forms.Form):
     useritem_id = forms.IntegerField(required=False, widget=forms.HiddenInput())
     updated_datetime = forms.DateTimeField(required=False)
     last_update_author = forms.CharField(required=False)
+    inner_order = forms.IntegerField(required=False, widget=forms.TextInput(
+        attrs={
+            "readonly": True,
+            "size": 2,
+        })
+    )
 
 
 class UserListForm(forms.Form):
@@ -39,6 +51,12 @@ class UserListForm(forms.Form):
     that user can change by himself
     """
 
+    def __init__(self, *args, readonly_flag=False, **kwargs):
+        super(UserListForm, self).__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            if readonly_flag is True:
+                field.widget.attrs.update({'readonly':True})
+    
     title = forms.CharField(
         max_length=100,
         widget=forms.TextInput(

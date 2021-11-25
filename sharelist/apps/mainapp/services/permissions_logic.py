@@ -143,15 +143,23 @@ def detele_permission(
     exacly list, if user that trying to delete permissions (acting_user_id)
     if author of this list, or acting_user trying to delete himself's access
     """
-    if userlist_access_check(acting_user_id, userlist_id) < 3:
-        raise PermissionDenied(
-            "You not author so you cant delete others \
-                permission for this list"
-        )
     if not (mode == "readonly" or mode == "readwrite"):
         raise ValueError(
             'Wrong mode passed. Use mode = "readonly" or "readwrite"'
         )
+    access_level = userlist_access_check(acting_user_id, userlist_id)
+    if user_id != acting_user_id:
+        required_access_level = 3
+    elif mode == "readwrite":
+        required_access_level = 2
+    elif mode == "readonly":
+        required_access_level = 1
+    if access_level < required_access_level:
+        raise PermissionDenied(
+            "You have no access to delete \
+                permission for this list"
+        )
+    
     try:
         if mode == "readonly":
             UserListCustomUser_ReadOnly.objects.get(
