@@ -1,7 +1,7 @@
 <!-- templates/main/mainpage.html -->
 {% extends 'base.html' %}
 {% block content %}
-<h1>MAIN PAGE</h1>
+<h1>Мои списки</h1>
 	<p><a href="{% url 'newlist' %}">Создать новый список</a></p>
 	<p>Списки под вашим авторством:</p>
 	{% for cur_list in userlists_byauthor %}

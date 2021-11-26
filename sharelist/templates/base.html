@@ -10,28 +10,44 @@
 	</head>
 	
 	<body>
-			<div align="center">
+		
+		<div class="wrapper">
+     <!--Top Menu & Menu button-->
+			<div class="section">
+			<div class="container">
+			<div class="container_main">
+			{% block content %}
+			{% endblock content %}
+			</div>
+			</div>
+			</div>
+			<div class="sidebar">
+				<div class="profile">
+					<!--Profile Image-->
+					<!--Profile Title & Descruption-->
+					<h3><a href="{% url 'startpage' %}">ShareList</a></h3>
+				
+				{% if user.is_authenticated %}
+				<p>{{ user.username }}</p>
+				<p><a href="{% url 'logout' %}">Выйти</a></p>
+				<br>
+				<p><a href="{% url 'mainpage' %}">Мои списки</a></p>
+				{% else %}
+				<p><a href="{% url 'login' %}">Войти</a></p>
+				<p><a href="{% url 'signup' %}">Зарегистрироваться</a></p>
 
-				<div>
-					<table class="tablehead">
-						<tr>
-							<td><a href="{% url 'startpage' %}">ShareList</a></td>
-							<td style="text-align:right;">
-								{% if user.is_authenticated %}
-								{{ user.username }} <a href="{% url 'logout' %}">Выйти</a>
-								<a href="{% url 'mainpage' %}">Мои списки</a>
-								{% else %}
-								<a href="{% url 'login' %}">Войти</a>
-								<a href="{% url 'signup' %}">Зарегистрироваться</a>
-
-								{% endif %}
-
-							</td>
-						</tr>
-					</table>
-					{% block content %}
-					{% endblock content %}
+				{% endif %}
 				</div>
+			</div>
 		</div>
+		
+		
+		
+		
+		
+		
 	</body>
 </html>
+
+
+
