@@ -254,11 +254,29 @@
     };
 })(jQuery);
 
+/* Resizing textareas
+code from https://stackoverflow.com/questions/454202/creating-a-textarea-with-auto-resize */
+
+jQuery.fn.extend({
+  autoHeight: function () {
+    function autoHeight_(element) {
+      return jQuery(element)
+        .css({ "height": "35px", "overflow-y": "hidden" })
+        .height(element.scrollHeight);
+    }
+    return this.each(function() {
+      autoHeight_(this).on("input", function() {
+        autoHeight_(this);
+      });
+    });
+  }
+});
+
 /* Moving items and change ordering*/
 /* code from https://htmlacademy.ru/demos/65 */
 
-const tasksListElement = document.querySelector(`.tasks__list`);
-const taskElements = tasksListElement.querySelectorAll(`.tasks__item`);
+const tasksListElement = document.querySelector(`.list`);
+const taskElements = tasksListElement.querySelectorAll(`.num`);
 
 
 for (const task of taskElements) {
@@ -287,7 +305,7 @@ tasksListElement.addEventListener(`dragover`, (evt) => {
   const activeElement = tasksListElement.querySelector(`.selected`);
   const currentElement = evt.target;
   const isMoveable = activeElement !== currentElement &&
-    currentElement.classList.contains(`tasks__item`);
+    currentElement.classList.contains(`num`);
     
   if (!isMoveable) {
     return;
@@ -308,7 +326,7 @@ tasksListElement.addEventListener(`dragover`, (evt) => {
 });
 
 function number_items_in_order() {
-  taskElements_2 = tasksListElement.querySelectorAll(`.tasks__item`);
+  taskElements_2 = tasksListElement.querySelectorAll(`.num`);
   let i = 1;
   for (task of taskElements_2) {
 	task.children[0].value = i;
@@ -325,8 +343,8 @@ $(".disable_drag").on("touchstart mousedown", function(e) {
 
 $('.disable_drag')
         .on('focus', function(e) {
-            $(this).closest('.tasks__item').attr("draggable", false);
+            $(this).closest('.num').attr("draggable", false);
         })
         .on('blur', function(e) {
-            $(this).closest('.tasks__item').attr("draggable", true);
+            $(this).closest('.num').attr("draggable", true);
         });

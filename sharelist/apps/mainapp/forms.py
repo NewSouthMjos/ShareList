@@ -18,7 +18,7 @@ class UserItemForm(forms.Form):
 
     text = forms.CharField(
         max_length=1000,
-        widget=forms.TextInput(
+        widget=forms.Textarea(
             attrs={
                 "placeholder": "Добавьте новый пункт...",
                 "class": "disable_drag",
@@ -40,7 +40,6 @@ class UserItemForm(forms.Form):
     inner_order = forms.IntegerField(required=False, widget=forms.TextInput(
         attrs={
             "readonly": True,
-            "size": 2,
         })
     )
 

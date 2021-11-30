@@ -10,44 +10,36 @@
 	</head>
 	
 	<body>
-		
-		<div class="wrapper">
-     <!--Top Menu & Menu button-->
-			<div class="section">
-			<div class="container">
-			<div class="container_main">
-			{% block content %}
-			{% endblock content %}
-			</div>
-			</div>
-			</div>
-			<div class="sidebar">
-				<div class="profile">
-					<!--Profile Image-->
-					<!--Profile Title & Descruption-->
-					<h3><a href="{% url 'startpage' %}">ShareList</a></h3>
-				
-				{% if user.is_authenticated %}
-				<p>{{ user.username }}</p>
-				<p><a href="{% url 'logout' %}">Выйти</a></p>
-				<br>
-				<p><a href="{% url 'mainpage' %}">Мои списки</a></p>
-				{% else %}
-				<p><a href="{% url 'login' %}">Войти</a></p>
-				<p><a href="{% url 'signup' %}">Зарегистрироваться</a></p>
 
-				{% endif %}
-				</div>
-			</div>
+	<div class="heading">
+	<h1>ShareList</h1>
+	</div>
+	
+	<div class="container">
+		<div class="nav">
+		{% if user.is_authenticated %}
+		<a href="{% url 'mainpage' %}">Мои списки</a>
+		<a href="">{{ user.username }}</a>
+		<a href="{% url 'logout' %}">Выйти</a>
+		{% else %}
+		<a href="{% url 'login' %}">Войти</a>
+		<a href="{% url 'signup' %}">Зарегистрироваться</a>
+		{% endif %}
 		</div>
 		
-		
-		
-		
-		
-		
+		{% block content %}
+		{% endblock content %}
+
+	
+	</div>
+	<h5 class="message">by Mishkin Evgeny, 2021</h5>	
 	</body>
 </html>
 
+
+
+		
+
+		
 
 
