@@ -102,7 +102,7 @@ html body {
 }
 
 .container .list .num {
-  padding: 0rem;
+  padding: 0.3rem;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -188,7 +188,7 @@ html body {
 
 /* JS styling: */
 .container .list .num .delete-row {
-	margin-left: auto;
+	margin-left: 25px;
 	text-decoration: none;
     font-size: 1rem;
     color: #2980b9;
