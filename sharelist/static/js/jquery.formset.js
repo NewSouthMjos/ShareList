@@ -292,9 +292,13 @@ tasksListElement.addEventListener(`dragend`, (evt) => {
   evt.target.classList.remove(`selected`);
 });
 
-const getNextElement = () => {
-    // Пока поставим заглушку
-  const nextElement = null;
+const getNextElement = (cursorPosition, currentElement) => {
+  const currentElementCoord = currentElement.getBoundingClientRect();
+  const currentElementCenter = currentElementCoord.y + currentElementCoord.height / 2;
+  
+  const nextElement = (cursorPosition < currentElementCenter) ?
+    currentElement :
+    currentElement.nextElementSibling;
   
   return nextElement;
 };
@@ -311,11 +315,18 @@ tasksListElement.addEventListener(`dragover`, (evt) => {
     return;
   }
   
-  const nextElement = (currentElement === activeElement.nextElementSibling) ?
-		currentElement.nextElementSibling :
-		currentElement;
+  const nextElement = getNextElement(evt.clientY, currentElement);
+  
+  if (
+    nextElement && 
+    activeElement === nextElement.previousElementSibling ||
+    activeElement === nextElement
+  ) {
+    return;
+  }
 		
 	tasksListElement.insertBefore(activeElement, nextElement);
+
 	//changind order id:
   //activeElement.value = "30"
   number_items_in_order();

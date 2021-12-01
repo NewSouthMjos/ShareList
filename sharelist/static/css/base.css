@@ -116,6 +116,7 @@ html body {
   width: 2rem;
   opacity: 0.05;
   border-style: none;
+  pointer-events: none;
   transition: 0.25s;
 } 
 
@@ -125,7 +126,7 @@ html body {
  
 .container .list .num .item_style {
   position: relative;
-  left: -1.5rem;
+  left:  0.8rem;
   color: #3d3d3d;
   font-size: 0.85rem;
   transition: 0.25s;
