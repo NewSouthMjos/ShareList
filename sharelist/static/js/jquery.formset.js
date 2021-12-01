@@ -341,10 +341,3 @@ $(".disable_drag").on("touchstart mousedown", function(e) {
     e.stopPropagation();
 }) */
 
-$('.disable_drag')
-        .on('focus', function(e) {
-            $(this).closest('.num').attr("draggable", false);
-        })
-        .on('blur', function(e) {
-            $(this).closest('.num').attr("draggable", true);
-        });

@@ -10,7 +10,7 @@
 	{% for item in item_formset %}
 		<div class="num">
 		{{ item.inner_order|addclass:'digits' }}
-		<div class="item_style"><h3>{{ item.text|addclass:'input_class' }}</h3><h5>В последний раз обновлено в {{ item.updated_datetime.value }} пользователем {{ item.last_update_author.value }}</h5></div>
+		<div class="item_style"><h3>{{ item.text|addclass:'input_class disable_drag' }}</h3><h5>В последний раз обновлено в {{ item.updated_datetime.value }} пользователем {{ item.last_update_author.value }}</h5></div>
 		</div>
 	{% endfor %}
 	</div>
@@ -35,6 +35,14 @@
 		addText: 'Добавить пункт',
     });
 	$("textarea").autoHeight()
+	
+	$('.disable_drag')
+        .on('focus', function(e) {
+            $(this).closest('.num').attr("draggable", false);
+        })
+        .on('blur', function(e) {
+            $(this).closest('.num').attr("draggable", true);
+		})
 </script>
 {% endif %}
 {% endblock content %}
