@@ -102,7 +102,7 @@ html body {
 }
 
 .container .list .num {
-  padding: 0.2rem 2rem;
+  padding: 0rem;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -113,10 +113,12 @@ html body {
   font-size: 4rem;
   font-weight: bold;
   color: #000;
-  width: 2rem;
   opacity: 0.05;
   border-style: none;
   pointer-events: none;
+  text-align: right;
+  width: 80px;
+  padding: 0rem;
   transition: 0.25s;
 } 
 
