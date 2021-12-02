@@ -9,10 +9,21 @@
 	<div class="list">
 	{% for item in item_formset %}
 		<div class="num">
-		{{ item.inner_order|addclass:'digits' }}
+		
+		<!-- some nerd styling option -->
+		{% if item.status.value == "done" %}
+		{{ item.inner_order|addclass:'digits done' }}
+		{% elif item.status.value == "in_progress" %}
+		{{ item.inner_order|addclass:'digits in_progress' }}
+		{% else %}
+		{{ item.inner_order|addclass:'digits planned' }}
+		{% endif %}
+		
+		{{ item.status|addclass:'status_style' }}
 		<div class="item_style">{{ item.text|addclass:'input_class disable_drag' }}<h5>В последний раз обновлено в {{ item.updated_datetime.value }} пользователем {{ item.last_update_author.value }}</h5></div>
 		<div class="num_control">
-			<div class="delete-row">Цвет</div>
+			<div class="delete-row color_button" id={{ item.inner_order.value}}>Цвет</div>
+			<!-- here is delete button -->
 		</div>
 		</div>
 	{% endfor %}
@@ -47,6 +58,24 @@
         .on('blur', function(e) {
             $(this).closest('.num').attr("draggable", true);
 		})
+		
+	$(document)
+        .on('click', '.color_button', function(e) {
+            if ($(this).parent().siblings('.status_style').val()=="planned"){
+				$(this).parent().siblings('.status_style').val("in_progress")
+				$(this).parent().siblings('.digits').removeClass("planned")
+				$(this).parent().siblings('.digits').addClass("in_progress")}
+			else if ($(this).parent().siblings('.status_style').val()=="in_progress"){
+				$(this).parent().siblings('.status_style').val("done")
+				$(this).parent().siblings('.digits').removeClass("in_progress")
+				$(this).parent().siblings('.digits').addClass("done")}
+			else if ($(this).parent().siblings('.status_style').val()=="done"){
+				$(this).parent().siblings('.status_style').val("planned")
+				$(this).parent().siblings('.digits').removeClass("done")
+				$(this).parent().siblings('.digits').addClass("planned")}
+
+        })
+
 </script>
 {% endif %}
 {% endblock content %}

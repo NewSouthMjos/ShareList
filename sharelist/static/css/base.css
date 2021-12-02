@@ -112,8 +112,7 @@ html body {
 .container .list .num .digits {
   font-size: 4rem;
   font-weight: bold;
-  color: #000;
-  opacity: 0.05;
+  opacity: 0.15;
   border-style: none;
   pointer-events: none;
   text-align: right;
@@ -122,8 +121,20 @@ html body {
   transition: 0.25s;
 } 
 
+.container .list .num .planned{
+  color: #000;
+} 
+
+.container .list .num .in_progress{
+  color: #0033ff;
+} 
+
+.container .list .num .done{
+  color: #439b00
+} 
+
 .container .list .num:hover .digits {
-  opacity: 0.2;
+  opacity: 0.4;
 }
  
 .container .list .num .item_style {

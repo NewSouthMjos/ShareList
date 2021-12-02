@@ -25,12 +25,18 @@ class UserItemForm(forms.Form):
         ),
         required=False,
     )
-    status = forms.ChoiceField(
-        choices=[
-            ("done", "Готово"),
-            ("in_progress", "В процессе"),
-            ("planned", "Запланировано"),
-        ],
+    status = forms.CharField(
+        max_length=30,
+        # choices=[
+        #     ("done", "Готово"),
+        #     ("in_progress", "В процессе"),
+        #     ("planned", "Запланировано"),
+        # ],
+        widget=forms.TextInput(
+            attrs={
+                "hidden": True,
+            }
+        ),
         required=False,
     )
     useritem_id = forms.IntegerField(required=False, widget=forms.HiddenInput())
@@ -41,6 +47,7 @@ class UserItemForm(forms.Form):
             "readonly": True,
         })
     )
+        
 
 
 class UserListForm(forms.Form):

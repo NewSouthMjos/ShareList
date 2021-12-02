@@ -337,12 +337,29 @@ tasksListElement.addEventListener(`dragover`, (evt) => {
 });
 
 function number_items_in_order() {
+  //number digits items
   taskElements_2 = tasksListElement.querySelectorAll(`.num`);
   let i = 1;
   for (task of taskElements_2) {
+	
+	//styling for new row:
+	if (task.children[0].value === "") {
+		task.children[0].classList.remove('in_progress');
+		task.children[0].classList.remove('done');
+		task.children[0].classList.add('planned');
+	}
+	
 	task.children[0].value = i;
 	i++;
-}
+  }
+	
+  //add status to new row
+  taskElements_4 = tasksListElement.querySelectorAll(`.status_style`);
+  for (status_elemenet of taskElements_4) {
+	if (status_elemenet.value === "") {
+		status_elemenet.value = "planned";
+	};
+  }
 }
 
 
