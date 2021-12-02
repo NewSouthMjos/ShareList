@@ -347,6 +347,7 @@ function number_items_in_order() {
 		task.children[0].classList.remove('in_progress');
 		task.children[0].classList.remove('done');
 		task.children[0].classList.add('planned');
+		task.children[2].children[1].innerHTML = "";
 	}
 	
 	task.children[0].value = i;
