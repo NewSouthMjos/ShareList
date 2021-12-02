@@ -13,7 +13,7 @@
 		Списки с доступом на чтение/запись:
 		{% for cur_list in userlists_readwrite %}
 			<div class="list_object">
-			<p><a href="{% url 'detailpage' cur_list.id %}">{{ cur_list.title }}</a> <a href="{% url 'removelist' cur_list.id %}">Убрать</a></p>
+			<h4><a href="{% url 'detailpage' cur_list.id %}">{{ cur_list.title }}</a></h4> <a href="{% url 'removelist' cur_list.id %}">Убрать</a>
 			</div>
 		{% endfor %}
 	{% endif %}
@@ -22,7 +22,7 @@
 		Списки с доступом на только на чтение:
 		{% for cur_list in userlists_readonly %}
 			<div class="list_object">
-			<p><a href="{% url 'detailpage' cur_list.id %}">{{ cur_list.title }}</a> <a href="{% url 'removelist' cur_list.id %}">Убрать</a></p>
+			<h4><a href="{% url 'detailpage' cur_list.id %}">{{ cur_list.title }}</a></h4> <a href="{% url 'removelist' cur_list.id %}">Убрать</a>
 			</div>
 		{% endfor %}
 	{% endif %}

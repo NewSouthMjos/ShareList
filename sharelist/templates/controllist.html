@@ -2,7 +2,7 @@
 {% block content %}
 <form action="" method="post">{% csrf_token %}
 	{{ permissions_formset.management_form  }}
-	<p>Список "{{ userlist_form.title.value }}"</p>
+	<p class="main centered">Список "{{ userlist_form.title.value }}"</p>
 	<p>Поделиться списком:</p>
 	<table>
 	  <tr>
@@ -34,7 +34,7 @@
 	Пока никто из пользователей не получил доступ к данному списку
 	{% endif %}
 	
-	<p><input type="submit" value="Сохранить"></p>
+	<p class="centered"><input type="submit" value="Сохранить"></p>
 
 </form>
 
