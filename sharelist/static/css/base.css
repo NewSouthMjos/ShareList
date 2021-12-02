@@ -153,6 +153,11 @@ html body {
   opacity: 0.6;
 }
 
+.container .list .num_control {
+  display: flex;
+  flex-direction: column;
+}
+
 .message {
   color: #fff;
   text-align: center;
@@ -193,6 +198,8 @@ html body {
     font-size: 1rem;
     color: #2980b9;
     opacity: 0;
+	margin-top: auto;
+	margin-bottom: 20px;
 	transition: 0.25s;
 }
 

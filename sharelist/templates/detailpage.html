@@ -11,6 +11,9 @@
 		<div class="num">
 		{{ item.inner_order|addclass:'digits' }}
 		<div class="item_style">{{ item.text|addclass:'input_class disable_drag' }}<h5>В последний раз обновлено в {{ item.updated_datetime.value }} пользователем {{ item.last_update_author.value }}</h5></div>
+		<div class="num_control">
+			<div class="delete-row">Цвет</div>
+		</div>
 		</div>
 	{% endfor %}
 	</div>
@@ -32,6 +35,7 @@
 <script>
     $('.num').formset({
         deleteText: 'Удалить',
+		deleteContainerClass: 'num_control', 
 		addText: 'Добавить пункт',
     });
 	$("textarea").autoHeight()
