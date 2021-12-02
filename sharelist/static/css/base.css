@@ -101,6 +101,8 @@ html body {
   margin-left: auto;
 }
 
+/* detailpage styling*/
+
 .container .list .num {
   padding: 0.3rem;
   display: flex;
@@ -246,4 +248,17 @@ input[type=submit], button[type=submit]{
 
 input[type=submit]:hover, button[type=submit]:hover{
   opacity: 1;
+}
+
+/* mainpage styling*/
+
+.container .list_object {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.container .list_object a:nth-child(2) {
+  margin-left: auto;
+  margin-right: 20px;
 }

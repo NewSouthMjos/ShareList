@@ -1,24 +1,29 @@
 <!-- templates/main/mainpage.html -->
 {% extends 'base.html' %}
 {% block content %}
-<h1>Мои списки</h1>
-	<p><a href="{% url 'newlist' %}">Создать новый список</a></p>
+	<h2 class="centered"><p><a href="{% url 'newlist' %}">Создать новый список</a></p></h2>
 	<p>Списки под вашим авторством:</p>
 	{% for cur_list in userlists_byauthor %}
-		<p class="item"><h4><a href="{% url 'detailpage' cur_list.id %}">{{ cur_list.title }}</a></h4> <a href="{% url 'deletelist' cur_list.id %}">Удалить</a> <a href="{% url 'controllist' cur_list.id %}">Управление доступом</a></p>
+		<div class="list_object">
+		<h4><a href="{% url 'detailpage' cur_list.id %}">{{ cur_list.title }}</a></h4> <a href="{% url 'deletelist' cur_list.id %}">Удалить</a> <a href="{% url 'controllist' cur_list.id %}">Управление доступом</a>
+		</div>
 	{% endfor %}
 	
 	{% if userlists_readwrite %}
 		Списки с доступом на чтение/запись:
 		{% for cur_list in userlists_readwrite %}
+			<div class="list_object">
 			<p><a href="{% url 'detailpage' cur_list.id %}">{{ cur_list.title }}</a> <a href="{% url 'removelist' cur_list.id %}">Убрать</a></p>
+			</div>
 		{% endfor %}
 	{% endif %}
 	
 	{% if userlists_readonly %}
 		Списки с доступом на только на чтение:
 		{% for cur_list in userlists_readonly %}
+			<div class="list_object">
 			<p><a href="{% url 'detailpage' cur_list.id %}">{{ cur_list.title }}</a> <a href="{% url 'removelist' cur_list.id %}">Убрать</a></p>
+			</div>
 		{% endfor %}
 	{% endif %}
 {% endblock content %}
