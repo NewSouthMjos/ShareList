@@ -260,20 +260,97 @@
     };
 })(jQuery);
 
-/* Resizing textareas
-code from https://stackoverflow.com/questions/454202/creating-a-textarea-with-auto-resize */
 
-jQuery.fn.extend({
-  autoHeight: function () {
-    function autoHeight_(element) {
-      return jQuery(element)
-        .css({ "height": "35px", "overflow-y": "hidden" })
-        .height(element.scrollHeight);
-    }
-    return this.each(function() {
-      autoHeight_(this).on("input", function() {
-        autoHeight_(this);
-      });
-    });
-  }
+
+/* JAVASCRIPT Section */
+
+/* Moving items and change ordering*/
+/* code from https://htmlacademy.ru/demos/65 */
+
+const tasksListElement = document.querySelector(`.list`);
+const taskElements = tasksListElement.querySelectorAll(`.num`);
+
+
+for (const task of taskElements) {
+  task.draggable = true;
+}
+
+
+tasksListElement.addEventListener(`dragstart`, (evt) => {
+  evt.target.classList.add(`selected`);
 });
+
+tasksListElement.addEventListener(`dragend`, (evt) => {
+  evt.target.classList.remove(`selected`);
+});
+
+const getNextElement = (cursorPosition, currentElement) => {
+  const currentElementCoord = currentElement.getBoundingClientRect();
+  const currentElementCenter = currentElementCoord.y + currentElementCoord.height / 2;
+  
+  const nextElement = (cursorPosition < currentElementCenter) ?
+    currentElement :
+    currentElement.nextElementSibling;
+  
+  return nextElement;
+};
+
+tasksListElement.addEventListener(`dragover`, (evt) => {
+  evt.preventDefault();
+  
+  const activeElement = tasksListElement.querySelector(`.selected`);
+  const currentElement = evt.target;
+  const isMoveable = activeElement !== currentElement &&
+    currentElement.classList.contains(`num`);
+    
+  if (!isMoveable) {
+    return;
+  }
+  
+  const nextElement = getNextElement(evt.clientY, currentElement);
+  
+  if (
+    nextElement && 
+    activeElement === nextElement.previousElementSibling ||
+    activeElement === nextElement
+  ) {
+    return;
+  }
+		
+	tasksListElement.insertBefore(activeElement, nextElement);
+
+	//changind order id:
+  //activeElement.value = "30"
+  number_items_in_order();
+  //inner_order_input = activeElement.children[0]
+  /* if (inner_order_input.value === "2") {
+    inner_order_input.value = "50";
+  } */
+});
+
+function number_items_in_order() {
+  //number digits items
+  taskElements_2 = tasksListElement.querySelectorAll(`.num`);
+  let i = 1;
+  for (task of taskElements_2) {
+	
+	//styling for new row:
+	if (task.children[0].value === "") {
+		task.children[0].classList.remove('in_progress');
+		task.children[0].classList.remove('done');
+		task.children[0].classList.add('planned');
+		task.children[2].children[1].innerHTML = "";
+	}
+	
+	task.children[0].value = i;
+	i++;
+  }
+	
+  //add status to new row
+  taskElements_4 = tasksListElement.querySelectorAll(`.status_style`);
+  for (status_elemenet of taskElements_4) {
+	if (status_elemenet.value === "") {
+		status_elemenet.value = "planned";
+	};
+  }
+}
