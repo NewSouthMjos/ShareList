@@ -8,10 +8,12 @@
 	  <tr>
 		<td>на чтение:</td>
 		<td>{{ userlistshareform.sharelink_readonly }}</td>
+		<td><a href="javascript:void(0)" onclick="copy_r()" id="copy_r_button">копировать</a></td>
 	  </tr>
 	  <tr>
 		<td>на запись:</td>
 		<td>{{ userlistshareform.sharelink_readwrite }}</td>
+		<td><a href="javascript:void(0)" onclick="copy_r()" id="copy_rw_button">копировать</a></td>
 	  </tr>
 	</table>
 	{% if permissions_formset|length > 0 %}
@@ -31,12 +33,73 @@
 		{% endfor %}
 		</table>
 	{% else %}
-	Пока никто из пользователей не получил доступ к данному списку
+	<p>Пока никто из пользователей не получил доступ к данному списку</p>
 	{% endif %}
 	
 	<p class="centered"><input type="submit" value="Сохранить"></p>
 
 </form>
+
+<script>
+function copy_r() {
+  const input = document.getElementsByName('sharelink_readonly');
+  input[0].focus();
+  input[0].select();
+}
+
+function fallbackCopyTextToClipboard(text) {
+  var textArea = document.createElement("textarea");
+  textArea.value = text;
+  
+  // Avoid scrolling to bottom
+  textArea.style.top = "0";
+  textArea.style.left = "0";
+  textArea.style.position = "fixed";
+
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+
+  try {
+    var successful = document.execCommand('copy');
+    var msg = successful ? 'successful' : 'unsuccessful';
+    console.log('Fallback: Copying text command was ' + msg);
+  } catch (err) {
+    console.error('Fallback: Oops, unable to copy', err);
+  }
+
+  document.body.removeChild(textArea);
+}
+function copyTextToClipboard(text) {
+  if (!navigator.clipboard) {
+    fallbackCopyTextToClipboard(text);
+    return;
+  }
+  navigator.clipboard.writeText(text).then(function() {
+    console.log('Async: Copying to clipboard was successful!');
+  }, function(err) {
+    console.error('Async: Could not copy text: ', err);
+  });
+}
+
+var copyRBtn = document.querySelector('#copy_r_button'),
+  copyRWBtn = document.querySelector('#copy_rw_button');
+
+copyRBtn.addEventListener('click', function(event) {
+  const r_link = document.getElementsByName('sharelink_readonly')[0];
+  copyTextToClipboard(r_link.value);
+  r_link.focus();
+  r_link.select();
+});
+
+
+copyRWBtn.addEventListener('click', function(event) {
+  const rw_link = document.getElementsByName('sharelink_readwrite')[0];
+  copyTextToClipboard(rw_link.value);
+  rw_link.focus();
+  rw_link.select();
+});
+</script>
 
 
 {% endblock content %}
