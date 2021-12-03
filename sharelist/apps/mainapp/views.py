@@ -92,6 +92,7 @@ class CreateList(LoginRequiredMixin, BaseView):
     def get(self, request):
         context = {
             "userlist_form": UserListForm,
+            "access_level": 3,
             "item_formset": formset_factory(
                 UserItemForm, formset=BaseFormSet, extra=1
             ),
@@ -141,7 +142,6 @@ class RemoveList(LoginRequiredMixin, BaseView):
 
     def post(self, request, userlist_id):
         access_level = userlist_access_check(request.user.id, userlist_id)
-        print(access_level)
         if access_level == 2:
             mode = "readwrite"
         elif access_level == 1:

@@ -18,20 +18,25 @@ class UserItemForm(forms.Form):
 
     text = forms.CharField(
         max_length=1000,
-        widget=forms.TextInput(
+        widget=forms.Textarea(
             attrs={
                 "placeholder": "Добавьте новый пункт...",
-                "class": "disable_drag",
             }
         ),
         required=False,
     )
-    status = forms.ChoiceField(
-        choices=[
-            ("done", "Готово"),
-            ("in_progress", "В процессе"),
-            ("planned", "Запланировано"),
-        ],
+    status = forms.CharField(
+        max_length=30,
+        # choices=[
+        #     ("done", "Готово"),
+        #     ("in_progress", "В процессе"),
+        #     ("planned", "Запланировано"),
+        # ],
+        widget=forms.TextInput(
+            attrs={
+                "hidden": True,
+            }
+        ),
         required=False,
     )
     useritem_id = forms.IntegerField(required=False, widget=forms.HiddenInput())
@@ -40,9 +45,10 @@ class UserItemForm(forms.Form):
     inner_order = forms.IntegerField(required=False, widget=forms.TextInput(
         attrs={
             "readonly": True,
-            "size": 2,
+            "tabindex": "-1",
         })
     )
+        
 
 
 class UserListForm(forms.Form):
@@ -62,6 +68,7 @@ class UserListForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 "placeholder": "Название списка",
+                "onkeydown": "return event.key != 'Enter';",
             }
         ),
         required=True,

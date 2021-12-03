@@ -156,15 +156,8 @@ def save_userlist_detail_maininfo(request, userlist_id: int):
 def save_userlist_detail_items(request, userlist_id: int):
     """Saves all items from request to userlist"""
     ItemFormSet = formset_factory(UserItemForm, formset=BaseFormSet)
-    #print(ItemFormSet)
-    #item_formset_f = get_userlist_detail_items(request.user.id, userlist_id, 1)
-    #print(item_formset_f)
     item_formset = ItemFormSet(request.POST)
     if not (item_formset.is_valid()):
-        #print(item_formset.total_error_count())
-        #print(item_formset.errors)
-        #print(item_formset.non_form_errors())
-        
         raise ValidationError("form is not valid")
     new_items = []
     user_items_old_objects = UserItem.objects.filter(related_userlist=userlist_id)
