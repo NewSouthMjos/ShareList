@@ -45,6 +45,7 @@ class UserItemForm(forms.Form):
     inner_order = forms.IntegerField(required=False, widget=forms.TextInput(
         attrs={
             "readonly": True,
+            "tabindex": "-1",
         })
     )
         
@@ -67,6 +68,7 @@ class UserListForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 "placeholder": "Название списка",
+                "onkeydown": "return event.key != 'Enter';",
             }
         ),
         required=True,
