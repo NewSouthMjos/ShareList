@@ -1,10 +1,12 @@
 <!-- templates/registration/login.html -->
 {% extends 'base.html' %}
+{% load myfilters %}
 {% block content %}
 <h2 class="centered">Авторизация</h2>
 <form method="post">
 {% csrf_token %}
-{{ form.as_p }}
+<p class="centered">{{ form.username|addclass:'input_login_field' }}<br>
+{{ form.password|addclass:'input_login_field' }}</p>
 <p class="centered"><button type="submit">Войти</button></p>
 </form>
 {% endblock content %}
