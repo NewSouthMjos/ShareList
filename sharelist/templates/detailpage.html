@@ -31,7 +31,7 @@
 	<!-- <p>Описание: {{ userlist_form.description }}</p> -->
 	<p class="centered more_padding">В последний раз список обновлен пользователем {{ userlist_form.last_update_author.value }} в {{ userlist_form.updated_datetime.value }}</p>
 	{{ item_formset.management_form  }}
-	{% if access_level > 2 %}
+	{% if access_level >= 2 %}
 	<p class="centered"><input type="submit" value="Сохранить"></p>
 	{% endif %}
 	

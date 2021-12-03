@@ -121,6 +121,9 @@
                     if (options.removed) options.removed(row);
                     return false;
                 });
+			//Mishkin code:
+			//renumber all items
+			number_items_in_order();
             };
 
         $$.each(function(i) {
