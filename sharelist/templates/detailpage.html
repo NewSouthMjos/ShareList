@@ -21,10 +21,14 @@
 		
 		{{ item.status|addclass:'status_style' }}
 		<div class="item_style">{{ item.text|addclass:'input_class disable_drag' }}<h5>В последний раз обновлено в {{ item.updated_datetime.value }} пользователем {{ item.last_update_author.value }}</h5></div>
+		
+		{% if access_level >= 2 %}
 		<div class="num_control">
 			<div class="delete-row color_button" id={{ item.inner_order.value}}>Цвет</div>
 			<!-- here is delete button -->
 		</div>
+		{% endif %}
+		
 		</div>
 	{% endfor %}
 	</div>
@@ -40,17 +44,22 @@
 
 
 <!-- Include formset plugin - including jQuery dependency -->
-{% if access_level > 2 %}
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 <script src="{% static 'js/jquery.formset.js' %}"></script>
+
 <script>
-    $('.num').formset({
+    $("textarea").autoHeight()
+	
+	{% if access_level >= 2 %}
+	$('.num').formset({
         deleteText: 'Удалить',
 		deleteContainerClass: 'num_control', 
 		addText: 'Добавить пункт',
     });
 	
-	$("textarea").autoHeight()
+	
+
 	
 	$('.disable_drag')
         .on('focus', function(e) {
@@ -76,6 +85,115 @@
 				$(this).parent().siblings('.digits').addClass("planned")}
 
         })
+
+	{% endif %}
 </script>
-{% endif %}
+
+<script>
+
+/* JAVASCRIPT Section */
+
+/* Moving items and change ordering*/
+/* code from https://htmlacademy.ru/demos/65 */
+
+const tasksListElement = document.querySelector(`.list`);
+const taskElements = tasksListElement.querySelectorAll(`.num`);
+
+
+for (const task of taskElements) {
+  task.draggable = true;
+}
+
+
+tasksListElement.addEventListener(`dragstart`, (evt) => {
+  evt.target.classList.add(`selected`);
+});
+
+tasksListElement.addEventListener(`dragend`, (evt) => {
+  evt.target.classList.remove(`selected`);
+});
+
+const getNextElement = (cursorPosition, currentElement) => {
+  const currentElementCoord = currentElement.getBoundingClientRect();
+  const currentElementCenter = currentElementCoord.y + currentElementCoord.height / 2;
+  
+  const nextElement = (cursorPosition < currentElementCenter) ?
+    currentElement :
+    currentElement.nextElementSibling;
+  
+  return nextElement;
+};
+
+tasksListElement.addEventListener(`dragover`, (evt) => {
+  evt.preventDefault();
+  
+  const activeElement = tasksListElement.querySelector(`.selected`);
+  const currentElement = evt.target;
+  const isMoveable = activeElement !== currentElement &&
+    currentElement.classList.contains(`num`);
+    
+  if (!isMoveable) {
+    return;
+  }
+  
+  const nextElement = getNextElement(evt.clientY, currentElement);
+  
+  if (
+    nextElement && 
+    activeElement === nextElement.previousElementSibling ||
+    activeElement === nextElement
+  ) {
+    return;
+  }
+		
+	tasksListElement.insertBefore(activeElement, nextElement);
+
+	//changind order id:
+  //activeElement.value = "30"
+  number_items_in_order();
+  //inner_order_input = activeElement.children[0]
+  /* if (inner_order_input.value === "2") {
+    inner_order_input.value = "50";
+  } */
+});
+
+function number_items_in_order() {
+  //number digits items
+  taskElements_2 = tasksListElement.querySelectorAll(`.num`);
+  let i = 1;
+  for (task of taskElements_2) {
+	
+	//styling for new row:
+	if (task.children[0].value === "") {
+		task.children[0].classList.remove('in_progress');
+		task.children[0].classList.remove('done');
+		task.children[0].classList.add('planned');
+		task.children[2].children[1].innerHTML = "";
+	}
+	
+	task.children[0].value = i;
+	i++;
+  }
+	
+  //add status to new row
+  taskElements_4 = tasksListElement.querySelectorAll(`.status_style`);
+  for (status_elemenet of taskElements_4) {
+	if (status_elemenet.value === "") {
+		status_elemenet.value = "planned";
+	};
+  }
+}
+
+
+/* prevent Enter key to save list,
+but to tab to 1st item */
+document.getElementByName('title').onkeypress = function (e) {
+        if (e.which === 13) {
+            document.getElementById("Text2").focus();
+            return false;
+        }
+    };
+
+</script>
+
 {% endblock content %}

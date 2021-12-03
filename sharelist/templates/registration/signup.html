@@ -1,10 +1,10 @@
 <!-- templates/signup.html -->
 {% extends 'base.html' %}
 {% block content %}
-<h2>Зарегистрироваться</h2>
+<h2 class="centered">Зарегистрироваться</h2>
 <form method="post">
 {% csrf_token %}
 {{ form.as_p }}
-<button type="submit">Создать аккаунт</button>
+<p class="centered"><button type="submit">Создать аккаунт</button></p>
 </form>
 {% endblock content %}

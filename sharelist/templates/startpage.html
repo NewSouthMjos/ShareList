@@ -1,5 +1,9 @@
 <!-- templates/main/mainpage.html -->
 {% extends 'base.html' %}
 {% block content %}
-<h1>START PAGE</h1>
+<p class="centered">Делитесь с друзьями списками и достигайте общих целей!</p>
+
+<p class="centered">
+<a href="{% url 'login' %}">Войти</a>/<a href="{% url 'signup' %}">Зарегистрироваться</a>
+</p>
 {% endblock content %}

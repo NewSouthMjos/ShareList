@@ -10,7 +10,7 @@
 	{% endfor %}
 	
 	{% if userlists_readwrite %}
-		Списки с доступом на чтение/запись:
+		<p>Списки с доступом на чтение/запись:</p>
 		{% for cur_list in userlists_readwrite %}
 			<div class="list_object">
 			<h4><a href="{% url 'detailpage' cur_list.id %}">{{ cur_list.title }}</a></h4> <a href="{% url 'removelist' cur_list.id %}">Убрать</a>
@@ -19,7 +19,7 @@
 	{% endif %}
 	
 	{% if userlists_readonly %}
-		Списки с доступом на только на чтение:
+		<p>Списки с доступом на только на чтение:</p>
 		{% for cur_list in userlists_readonly %}
 			<div class="list_object">
 			<h4><a href="{% url 'detailpage' cur_list.id %}">{{ cur_list.title }}</a></h4> <a href="{% url 'removelist' cur_list.id %}">Убрать</a>
