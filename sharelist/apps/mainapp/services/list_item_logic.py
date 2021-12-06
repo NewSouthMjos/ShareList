@@ -58,13 +58,17 @@ def get_userlist_detail_context(user_id: int, userlist_id: int):
     else:
         raise PermissionDenied("You have no access to list #%s. Access level:" % userlist_id, access_level)
     return {
-        "userlist_form": get_userlist_detail_maininfo(user_id, userlist_id, readonly_flag),
-        "item_formset": get_userlist_detail_items(user_id, userlist_id, readonly_flag),
+        "userlist_form": _get_userlist_detail_maininfo(
+            user_id, userlist_id, readonly_flag
+        ),
+        "item_formset": _get_userlist_detail_items(
+            user_id, userlist_id, readonly_flag
+        ),
         "access_level": access_level,
     }
 
 
-def get_userlist_detail_maininfo(user_id: int, userlist_id: int,
+def _get_userlist_detail_maininfo(user_id: int, userlist_id: int,
                                  readonly_flag: bool = False):
     """
     Return the form of UserList to be displayed
@@ -87,7 +91,7 @@ def get_userlist_detail_maininfo(user_id: int, userlist_id: int,
     )
 
 
-def get_userlist_detail_items(user_id: int, userlist_id: int,
+def _get_userlist_detail_items(user_id: int, userlist_id: int,
                               readonly_flag: bool = False):
     """
     Return item formset, that contains data from
@@ -121,8 +125,8 @@ def save_userlist_detail_all(request, userlist_id):
         raise PermissionDenied(
             "You have no access to write list #%s." % userlist_id
         )
-    userlist_form = save_userlist_detail_maininfo(request, userlist_id)
-    item_formset = save_userlist_detail_items(request, userlist_id)
+    userlist_form = _save_userlist_detail_maininfo(request, userlist_id)
+    item_formset = _save_userlist_detail_items(request, userlist_id)
     return (userlist_form, item_formset)
 
 
@@ -140,7 +144,7 @@ def create_userlist(request):
     return userlist_obj.id
 
 
-def save_userlist_detail_maininfo(request, userlist_id: int):
+def _save_userlist_detail_maininfo(request, userlist_id: int):
     """Updates list info from POST request"""
     userlist_form = UserListForm(request.POST)
     if not (userlist_form.is_valid()):
@@ -153,7 +157,7 @@ def save_userlist_detail_maininfo(request, userlist_id: int):
     userlist_obj.save()
 
 
-def save_userlist_detail_items(request, userlist_id: int):
+def _save_userlist_detail_items(request, userlist_id: int):
     """Saves all items from request to userlist"""
     ItemFormSet = formset_factory(UserItemForm, formset=BaseFormSet)
     item_formset = ItemFormSet(request.POST)

@@ -10,7 +10,6 @@ from django.forms import formset_factory
 from mainapp.services.list_item_logic import (
     get_all_userlists,
     get_userlist_detail_context,
-    get_userlist_detail_maininfo,
     save_userlist_detail_all,
     delete_userlist,
     create_userlist,
@@ -115,11 +114,7 @@ class DeleteList(LoginRequiredMixin, BaseView):
     login_url = reverse_lazy("login")
 
     def get(self, request, userlist_id):
-        context = {
-            "userlist_form": get_userlist_detail_maininfo(
-                request.user.id, userlist_id
-            )
-        }
+        context = get_userlist_detail_context(request.user.id, userlist_id)
         return render(request, "deletepage.html", context)
 
     def post(self, request, userlist_id):
