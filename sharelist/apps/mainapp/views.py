@@ -93,6 +93,7 @@ class CreateList(LoginRequiredMixin, BaseView):
         context = {
             "userlist_form": UserListForm,
             "access_level": 3,
+            "is_new_list": True,
             "item_formset": formset_factory(
                 UserItemForm, formset=BaseFormSet, extra=1
             ),
