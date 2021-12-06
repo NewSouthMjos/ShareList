@@ -56,8 +56,11 @@
             insertDeleteLink = function(row) {
                 var delCssSelector = $.trim(options.deleteCssClass).replace(/\s+/g, '.'),
                     addCssSelector = $.trim(options.addCssClass).replace(/\s+/g, '.');
-
-                var delButtonHTML = '<a class="' + options.deleteCssClass + '" href="javascript:void(0)">' + options.deleteText +'</a>';
+				
+                /* var delButtonHTML = '<a class="' + options.deleteCssClass + '" href="javascript:void(0)">' + options.deleteText +'</a>'; */
+				/* added tabindex = -1 for not switching to delete button by pressing tab*/
+				var delButtonHTML = '<a tabindex="-1" class="' + options.deleteCssClass + '" href="javascript:void(0)">' + options.deleteText +'</a>';
+				
                 if (options.deleteContainerClass) {
                     // If we have a specific container for the remove button,
                     // place it as the last child of that container:
@@ -121,6 +124,9 @@
                     if (options.removed) options.removed(row);
                     return false;
                 });
+			//Mishkin code:
+			//renumber all items
+			number_items_in_order();
             };
 
         $$.each(function(i) {
@@ -254,11 +260,15 @@
     };
 })(jQuery);
 
+
+
+/* JAVASCRIPT Section */
+
 /* Moving items and change ordering*/
 /* code from https://htmlacademy.ru/demos/65 */
 
-const tasksListElement = document.querySelector(`.tasks__list`);
-const taskElements = tasksListElement.querySelectorAll(`.tasks__item`);
+const tasksListElement = document.querySelector(`.list`);
+const taskElements = tasksListElement.querySelectorAll(`.num`);
 
 
 for (const task of taskElements) {
@@ -274,9 +284,13 @@ tasksListElement.addEventListener(`dragend`, (evt) => {
   evt.target.classList.remove(`selected`);
 });
 
-const getNextElement = () => {
-    // Пока поставим заглушку
-  const nextElement = null;
+const getNextElement = (cursorPosition, currentElement) => {
+  const currentElementCoord = currentElement.getBoundingClientRect();
+  const currentElementCenter = currentElementCoord.y + currentElementCoord.height / 2;
+  
+  const nextElement = (cursorPosition < currentElementCenter) ?
+    currentElement :
+    currentElement.nextElementSibling;
   
   return nextElement;
 };
@@ -287,17 +301,24 @@ tasksListElement.addEventListener(`dragover`, (evt) => {
   const activeElement = tasksListElement.querySelector(`.selected`);
   const currentElement = evt.target;
   const isMoveable = activeElement !== currentElement &&
-    currentElement.classList.contains(`tasks__item`);
+    currentElement.classList.contains(`num`);
     
   if (!isMoveable) {
     return;
   }
   
-  const nextElement = (currentElement === activeElement.nextElementSibling) ?
-		currentElement.nextElementSibling :
-		currentElement;
+  const nextElement = getNextElement(evt.clientY, currentElement);
+  
+  if (
+    nextElement && 
+    activeElement === nextElement.previousElementSibling ||
+    activeElement === nextElement
+  ) {
+    return;
+  }
 		
 	tasksListElement.insertBefore(activeElement, nextElement);
+
 	//changind order id:
   //activeElement.value = "30"
   number_items_in_order();
@@ -308,25 +329,28 @@ tasksListElement.addEventListener(`dragover`, (evt) => {
 });
 
 function number_items_in_order() {
-  taskElements_2 = tasksListElement.querySelectorAll(`.tasks__item`);
+  //number digits items
+  taskElements_2 = tasksListElement.querySelectorAll(`.num`);
   let i = 1;
   for (task of taskElements_2) {
+	
+	//styling for new row:
+	if (task.children[0].value === "") {
+		task.children[0].classList.remove('in_progress');
+		task.children[0].classList.remove('done');
+		task.children[0].classList.add('planned');
+		task.children[2].children[1].innerHTML = "";
+	}
+	
 	task.children[0].value = i;
 	i++;
+  }
+	
+  //add status to new row
+  taskElements_4 = tasksListElement.querySelectorAll(`.status_style`);
+  for (status_elemenet of taskElements_4) {
+	if (status_elemenet.value === "") {
+		status_elemenet.value = "planned";
+	};
+  }
 }
-}
-
-
-/* //Disable drag on text element
-$(".disable_drag").on("touchstart mousedown", function(e) {
-    // Prevent carousel swipe
-    e.stopPropagation();
-}) */
-
-$('.disable_drag')
-        .on('focus', function(e) {
-            $(this).closest('.tasks__item').attr("draggable", false);
-        })
-        .on('blur', function(e) {
-            $(this).closest('.tasks__item').attr("draggable", true);
-        });
