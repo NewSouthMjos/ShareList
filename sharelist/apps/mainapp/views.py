@@ -131,11 +131,7 @@ class RemoveList(LoginRequiredMixin, BaseView):
     login_url = reverse_lazy("login")
 
     def get(self, request, userlist_id):
-        context = {
-            "userlist_form": get_userlist_detail_maininfo(
-                request.user.id, userlist_id
-            )
-        }
+        context = get_userlist_detail_context(request.user.id, userlist_id)
         return render(request, "removelist.html", context)
 
     def post(self, request, userlist_id):
@@ -179,17 +175,13 @@ class UserListControl(LoginRequiredMixin, BaseView):
     login_url = reverse_lazy("login")
 
     def get(self, request, userlist_id):
-        context = {
-            "userlist_form": get_userlist_detail_maininfo(
-                request.user.id, userlist_id
-            ),
-            "userlistshareform": get_userlist_detail_sharelinks(
+        context = get_userlist_detail_context(request.user.id, userlist_id)
+        context["userlistshareform"] = get_userlist_detail_sharelinks(
                 request, userlist_id
-            ),
-            "permissions_formset": get_permissions(
+        )
+        context["permissions_formset"] = get_permissions(
                 userlist_id, request.user.id
-            ),
-        }
+        )
         return render(request, "controllist.html", context)
 
     def post(self, request, userlist_id):
