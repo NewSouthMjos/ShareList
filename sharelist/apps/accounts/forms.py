@@ -41,6 +41,12 @@ class CustomUserCreationForm(UserCreationForm):
         model = CustomUser
         fields = UserCreationForm.Meta.fields
         field_classes = {'username': CustromUsernameField}
+
+    def save(self, *args, **kwargs):
+        user = super().save(*args, **kwargs)
+        print('Creating user...')
+        #TODO: autocreate first userlist for demonstrate functionality
+        return user
         
 class CustomUserChangeForm(UserChangeForm):
     class Meta:

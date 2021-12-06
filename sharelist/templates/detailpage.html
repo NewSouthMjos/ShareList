@@ -22,7 +22,9 @@
 		{{ item.status|addclass:'status_style' }}
 		
 		
-		<div class="item_style">{{ item.text|addclass:'input_class disable_drag' }}<h5>В последний раз обновлено в {{ item.updated_datetime.value }} пользователем {{ item.last_update_author.value }}</h5></div>
+		<div class="item_style">{{ item.text|addclass:'input_class disable_drag' }}<h5>В последний раз обновлен {{ item.updated_datetime.value }} пользователем {{ item.last_update_author.value }}</h5></div>
+		
+		{{ item.useritem_id }}
 		
 		
 		{% if access_level >= 2 %}
@@ -37,7 +39,7 @@
 	</div>
 	<!-- <p>Описание: {{ userlist_form.description }}</p> -->
 	{% if not is_new_list %}
-	<p class="centered more_padding">В последний раз список обновлен пользователем {{ userlist_form.last_update_author.value }} в {{ userlist_form.updated_datetime.value }}</p>
+	<p class="centered more_padding">В последний раз список обновлен {{ userlist_form.updated_datetime.value }} пользователем {{ userlist_form.last_update_author.value }}</p>
 	{% endif %}
 	{{ item_formset.management_form  }}
 	{% if access_level >= 2 %}

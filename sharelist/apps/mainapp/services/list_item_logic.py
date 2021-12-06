@@ -172,9 +172,11 @@ def _save_userlist_detail_items(request, userlist_id: int):
             useritem_id = item_form.cleaned_data.get("useritem_id")
             try:
                 item_obj = user_items_old_objects.get(id=useritem_id)
-                if item_obj.text == item_form.cleaned_data.get("text")\
-                        and item_obj.status == item_form.cleaned_data.get("status")\
-                        and item_obj.inner_order == item_form.cleaned_data.get("inner_order"):
+                item_obj_has_not_changed = (
+                    item_obj.text == item_form.cleaned_data.get("text") and
+                    item_obj.status == item_form.cleaned_data.get("status") and
+                    item_obj.inner_order == item_form.cleaned_data.get("inner_order"))
+                if item_obj_has_not_changed:
                     user_items_old_objects = user_items_old_objects.exclude(id=useritem_id)
                     continue
             except UserItem.DoesNotExist:
@@ -204,7 +206,7 @@ def _save_userlist_detail_items(request, userlist_id: int):
 
     except IntegrityError:  # If the transaction failed
         # messages.error(request, '')
-        raise IntegrityError( "Ошибка сохранения данных на сервере")
+        raise IntegrityError("Ошибка сохранения данных на сервере")
 
 
 def delete_userlist(user_id: int, userlist_id: int):
