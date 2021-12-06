@@ -263,3 +263,17 @@ input[type=submit]:hover, button[type=submit]:hover{
   margin-left: auto;
   margin-right: 20px;
 }
+
+/* login styling */
+
+.input_login_field {
+	margin-bottom: 15px;
+	width: 270px;
+	padding: 6px 12px 8px;
+	border-radius: 3px;
+	border: 1px solid #dce1e6;
+	font-size: 14px;
+	box-sizing: border-box;
+	height: 35px;
+}
+

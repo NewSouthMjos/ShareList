@@ -37,14 +37,16 @@ class BaseView(View):
         try:
             response = super().dispatch(request, *args, **kwargs)
         except Exception as e:
-            html = "<html><body>%s</body></html>" % e
+            context = {"error_massage": e}
+            # html = "<html><body>%s</body></html>" % e
             if type(e) == PermissionDenied:
                 status_code = 403
             elif type(e) == ObjectDoesNotExist:
                 status_code = 404
             else:
                 status_code = 500
-            return HttpResponse(html, status=status_code)
+            return render(request, "errorpage.html", context, status=status_code)
+            # return HttpResponse(html, status=status_code)
         return response
 
 
@@ -93,6 +95,7 @@ class CreateList(LoginRequiredMixin, BaseView):
         context = {
             "userlist_form": UserListForm,
             "access_level": 3,
+            "is_new_list": True,
             "item_formset": formset_factory(
                 UserItemForm, formset=BaseFormSet, extra=1
             ),
