@@ -6,6 +6,8 @@ from django.contrib.auth.forms import UsernameField
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import password_validation
 
+from mainapp.services.list_item_logic import make_example_userlist
+
 from .models import CustomUser
 
 class CustromUsernameField(UsernameField):
@@ -46,6 +48,7 @@ class CustomUserCreationForm(UserCreationForm):
         user = super().save(*args, **kwargs)
         print('Creating user...')
         #TODO: autocreate first userlist for demonstrate functionality
+        make_example_userlist(user)
         return user
         
 class CustomUserChangeForm(UserChangeForm):

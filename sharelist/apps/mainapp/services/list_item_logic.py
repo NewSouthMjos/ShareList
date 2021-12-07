@@ -7,6 +7,7 @@ from django.core.exceptions import (
 )
 from django.utils import timezone
 from django.db import IntegrityError, transaction
+from django.test.client import RequestFactory
 
 from mainapp.models import (
     UserList,
@@ -253,3 +254,48 @@ def get_userlist_detail_sharelinks(request, userlist_id: int):
             "sharelink_readwrite": link_readwrite,
         }
     )
+
+def make_example_userlist(user):
+    """
+    Makes default userlist for user - example and clarifications
+    on how to work with userlists.
+    """
+    factory = RequestFactory()
+    text0 = """
+Это - пример списка. Вы можете удалять пункты \
+с помощью кнопки справа, появляющейся при наведении \
+мышью на пункт. Так же добавлять пункты с помощью \
+кнопки снизу.
+"""
+    text1 = """
+Так же возможен выбор "статуса" пункта, \
+отображающегося цветов: серый - запланировано, \
+синий - в процессе, зелёный - готово.
+"""
+    text2 = """
+Друг может поделиться с вами списком только \
+на чтение - в таком случае у вас не будут доступны кнопки \
+взаимодействий, в том числе - кнопка "сохранить".
+"""
+    text3 = """
+Поделиться своим списком можно на владке "Мои списки". \
+Приятной работы!
+"""
+    data = {
+        "title": "Пример списка",
+        "form-TOTAL_FORMS": "4",
+        "form-INITIAL_FORMS": "5",
+        "form-MIN_NUM_FORMS": "0",
+        "form-MAX_NUM_FORMS": "1000",
+        "form-0-text": text0,
+        "form-0-status": "planned",
+        "form-1-text": text1,
+        "form-1-status": "in_progress",
+        "form-2-text": text2,
+        "form-2-status": "in_progress",
+        "form-3-text": text3,
+        "form-3-status": "done",
+    }
+    request = factory.post("", data)
+    request.user = user
+    create_userlist(request)
