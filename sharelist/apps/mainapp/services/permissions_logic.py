@@ -1,3 +1,5 @@
+import logging
+
 from django.db import IntegrityError, transaction
 from django.forms.formsets import BaseFormSet
 from django.forms import formset_factory
@@ -14,6 +16,9 @@ from mainapp.models import (
     UserListCustomUser_ReadWrite,
 )
 from mainapp.forms import UserPermissionForm
+
+
+logger = logging.getLogger(__name__)
 
 
 class PermissionAlreadyGranted(Exception):
@@ -33,14 +38,14 @@ def userlist_access_check(user_id: int, userlist_id: int) -> int:
     try:
         userlist_obj = UserList.objects.get(id=userlist_id)
     except UserList.DoesNotExist:
-        raise ObjectDoesNotExist("List %s not found" % userlist_id)
+        raise ObjectDoesNotExist("List #%s not found" % userlist_id)
     if userlist_obj.author.id == user_id:
         return 3
 
     #this is my approach to format code:
     if len(list(UserListCustomUser_ReadWrite.objects.filter(
-        customuser=user_id, userlist=userlist_id
-        ))) > 0:
+            customuser=user_id, userlist=userlist_id
+            ))) > 0:
         return 2
     #and this is what Black done, witch is better?
     if (
@@ -186,7 +191,7 @@ def set_permission(
     if userlist_access_check(acting_user_id, userlist_id) < 3:
         raise PermissionDenied(
             "You not author so you cant sets others \
-                permission for this list"
+            permission for this list"
         )
     changing_userlist = UserList.objects.get(id=userlist_id)
 
@@ -242,6 +247,9 @@ def set_permission(
                 "Error while adding permissions: " + str(error.args)
             )
 
+    info = f"userlist_id: {userlist_id}, acting_user_id: {acting_user_id}," \
+        f"user_id: {user_id}, mode: {mode}"
+    logger.error(f"set_permission func failed! Incoming inputs: {info}")
     raise ValueError("Something went wronge while changing permissions")
 
 

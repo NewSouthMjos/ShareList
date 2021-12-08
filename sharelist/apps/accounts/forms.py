@@ -1,3 +1,5 @@
+import logging
+
 from django import forms
 from django.contrib.auth.forms import (
     UserCreationForm, UserChangeForm, AuthenticationForm, UsernameField
@@ -10,7 +12,12 @@ from mainapp.services.list_item_logic import make_example_userlist
 
 from .models import CustomUser
 
+
+logger = logging.getLogger(__name__)
+
+
 class CustromUsernameField(UsernameField):
+    """UsernameField redefine for add placeholder"""
     def widget_attrs(self, widget):
         return {
             **super().widget_attrs(widget),
@@ -18,8 +25,12 @@ class CustromUsernameField(UsernameField):
         }
 
 
-
 class CustomUserCreationForm(UserCreationForm):
+    """
+    UserCreationForm redefine for add placeholers and
+    custom operation to add default userlist on users
+    saves operation
+    """
     password1 = forms.CharField(
         label=_("Password"),
         strip=False,
@@ -46,17 +57,19 @@ class CustomUserCreationForm(UserCreationForm):
 
     def save(self, *args, **kwargs):
         user = super().save(*args, **kwargs)
-        print('Creating user...')
-        #TODO: autocreate first userlist for demonstrate functionality
+        logger.info(f"Adding default list for new user '{user.username}'...")
         make_example_userlist(user)
+        logger.info(f"Default list for '{user.username}' added!")
         return user
         
 class CustomUserChangeForm(UserChangeForm):
+    """Not necessary redefine"""
     class Meta:
         model = CustomUser
         fields = UserChangeForm.Meta.fields
 
 class CustomUserAuthenticationForm(AuthenticationForm):
+    """UserAuthenticationForm redefine for add placeholders"""
     username = UsernameField(widget=forms.TextInput(attrs={
         'autofocus': True,
         'placeholder': 'Имя пользователя'

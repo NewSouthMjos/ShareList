@@ -1,3 +1,5 @@
+import logging
+
 from django.views import View
 from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -24,6 +26,17 @@ from mainapp.services.permissions_logic import (
 )
 from mainapp.forms import UserListForm, UserItemForm
 
+from django.shortcuts import render
+from django.http import HttpResponseNotFound
+
+
+logger = logging.getLogger(__name__)
+
+def handler404(request, exception, template_name="errorpage.html"):
+    """Custom 404 render"""
+    context = {"error_massage": "HTTP 404: Запрошенный адрес не найден"}
+    response = render(request, template_name, context, status=404)
+    return response
 
 class BaseView(View):
     """
@@ -42,6 +55,9 @@ class BaseView(View):
                 status_code = 404
             else:
                 status_code = 500
+            logger.warning(
+                f"User '{request.user}' got error: {e}, code: {status_code}"
+            )
             return render(request, "errorpage.html", context,
                           status=status_code)
         return response
@@ -166,8 +182,8 @@ class ShareListConfirm(LoginRequiredMixin, BaseView):
 
 class UserListControl(LoginRequiredMixin, BaseView):
     """
-    Control page for author of UserList, where he can change permissions for
-    users and check the sharecode for list
+    Control page for author of UserList, where he can change 
+    permissions for users and check the sharecode for list
     """
 
     login_url = reverse_lazy("login")
