@@ -19,11 +19,11 @@ from mainapp.models import (
 from mainapp.forms import UserListForm, UserItemForm
 from mainapp.services.list_item_logic import (
     get_all_userlists,
-    get_userlist_detail_maininfo,
-    get_userlist_detail_items,
+    _get_userlist_detail_maininfo as get_userlist_detail_maininfo,
+    _get_userlist_detail_items as get_userlist_detail_items,
     get_userlist_detail_context,
-    save_userlist_detail_maininfo,
-    save_userlist_detail_items,
+    _save_userlist_detail_maininfo as save_userlist_detail_maininfo,
+    _save_userlist_detail_items as save_userlist_detail_items,
     userlist_access_check,
     save_userlist_detail_all,
 )

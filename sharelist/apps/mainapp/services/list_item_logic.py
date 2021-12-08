@@ -1,3 +1,5 @@
+import logging
+
 from django.forms.formsets import BaseFormSet
 from django.forms import formset_factory
 from django.core.exceptions import (
@@ -7,6 +9,7 @@ from django.core.exceptions import (
 )
 from django.utils import timezone
 from django.db import IntegrityError, transaction
+from django.test.client import RequestFactory
 
 from mainapp.models import (
     UserList,
@@ -17,6 +20,9 @@ from mainapp.models import (
 from mainapp.forms import UserListForm, UserItemForm, UserListShareForm
 from mainapp.services.permissions_logic import userlist_access_check
 from accounts.models import CustomUser
+
+
+logger = logging.getLogger(__name__)
 
 
 def get_all_userlists(user_id: int):
@@ -56,16 +62,22 @@ def get_userlist_detail_context(user_id: int, userlist_id: int):
     elif access_level > 1:
         readonly_flag = False
     else:
-        raise PermissionDenied("You have no access to list #%s. Access level:" % userlist_id, access_level)
+        raise PermissionDenied(
+            f"You have no access to list #{userlist_id}. Access level: {access_level}"
+        )
     return {
-        "userlist_form": get_userlist_detail_maininfo(user_id, userlist_id, readonly_flag),
-        "item_formset": get_userlist_detail_items(user_id, userlist_id, readonly_flag),
+        "userlist_form": _get_userlist_detail_maininfo(
+            user_id, userlist_id, readonly_flag
+        ),
+        "item_formset": _get_userlist_detail_items(
+            user_id, userlist_id, readonly_flag
+        ),
         "access_level": access_level,
     }
 
 
-def get_userlist_detail_maininfo(user_id: int, userlist_id: int,
-                                 readonly_flag: bool = False):
+def _get_userlist_detail_maininfo(user_id: int, userlist_id: int,
+                                  readonly_flag: bool = False):
     """
     Return the form of UserList to be displayed
     """
@@ -87,8 +99,8 @@ def get_userlist_detail_maininfo(user_id: int, userlist_id: int,
     )
 
 
-def get_userlist_detail_items(user_id: int, userlist_id: int,
-                              readonly_flag: bool = False):
+def _get_userlist_detail_items(user_id: int, userlist_id: int,
+                               readonly_flag: bool = False):
     """
     Return item formset, that contains data from
     passed userlist_id
@@ -121,8 +133,8 @@ def save_userlist_detail_all(request, userlist_id):
         raise PermissionDenied(
             "You have no access to write list #%s." % userlist_id
         )
-    userlist_form = save_userlist_detail_maininfo(request, userlist_id)
-    item_formset = save_userlist_detail_items(request, userlist_id)
+    userlist_form = _save_userlist_detail_maininfo(request, userlist_id)
+    item_formset = _save_userlist_detail_items(request, userlist_id)
     return (userlist_form, item_formset)
 
 
@@ -140,7 +152,7 @@ def create_userlist(request):
     return userlist_obj.id
 
 
-def save_userlist_detail_maininfo(request, userlist_id: int):
+def _save_userlist_detail_maininfo(request, userlist_id: int):
     """Updates list info from POST request"""
     userlist_form = UserListForm(request.POST)
     if not (userlist_form.is_valid()):
@@ -153,7 +165,7 @@ def save_userlist_detail_maininfo(request, userlist_id: int):
     userlist_obj.save()
 
 
-def save_userlist_detail_items(request, userlist_id: int):
+def _save_userlist_detail_items(request, userlist_id: int):
     """Saves all items from request to userlist"""
     ItemFormSet = formset_factory(UserItemForm, formset=BaseFormSet)
     item_formset = ItemFormSet(request.POST)
@@ -168,9 +180,11 @@ def save_userlist_detail_items(request, userlist_id: int):
             useritem_id = item_form.cleaned_data.get("useritem_id")
             try:
                 item_obj = user_items_old_objects.get(id=useritem_id)
-                if item_obj.text == item_form.cleaned_data.get("text")\
-                        and item_obj.status == item_form.cleaned_data.get("status")\
-                        and item_obj.inner_order == item_form.cleaned_data.get("inner_order"):
+                item_obj_has_not_changed = (
+                    item_obj.text == item_form.cleaned_data.get("text") and
+                    item_obj.status == item_form.cleaned_data.get("status") and
+                    item_obj.inner_order == item_form.cleaned_data.get("inner_order"))
+                if item_obj_has_not_changed:
                     user_items_old_objects = user_items_old_objects.exclude(id=useritem_id)
                     continue
             except UserItem.DoesNotExist:
@@ -199,8 +213,8 @@ def save_userlist_detail_items(request, userlist_id: int):
             # LOG MESSAGE ABOUT UPDATE HERE <---
 
     except IntegrityError:  # If the transaction failed
-        # messages.error(request, '')
-        raise IntegrityError( "Ошибка сохранения данных на сервере")
+        logger.error("Error while saving useritems to database")
+        raise IntegrityError("Ошибка сохранения данных на сервере")
 
 
 def delete_userlist(user_id: int, userlist_id: int):
@@ -223,7 +237,7 @@ def get_userlist_detail_sharelinks(request, userlist_id: int):
     try:
         userlist = UserList.objects.get(id=userlist_id)
     except UserList.DoesNotExist:
-        raise ObjectDoesNotExist("List %s not found" % userlist_id)
+        raise ObjectDoesNotExist("List #%s not found" % userlist_id)
     if userlist_access_check(request.user.id, userlist_id) < 3:
         raise PermissionDenied("You have no access to view sharelinks")
 
@@ -247,3 +261,48 @@ def get_userlist_detail_sharelinks(request, userlist_id: int):
             "sharelink_readwrite": link_readwrite,
         }
     )
+
+def make_example_userlist(user):
+    """
+    Makes default userlist for user - example and clarifications
+    on how to work with userlists.
+    """
+    factory = RequestFactory()
+    text0 = """
+Это - пример списка. Вы можете удалять пункты \
+с помощью кнопки справа, появляющейся при наведении \
+мышью на пункт. Так же добавлять пункты с помощью \
+кнопки снизу.
+"""
+    text1 = """
+Так же возможен выбор "статуса" пункта, \
+отображающегося цветов: серый - запланировано, \
+синий - в процессе, зелёный - готово.
+"""
+    text2 = """
+Друг может поделиться с вами списком только \
+на чтение - в таком случае у вас не будут доступны кнопки \
+взаимодействий, в том числе - кнопка "сохранить".
+"""
+    text3 = """
+Поделиться своим списком можно на владке "Мои списки". \
+Приятной работы!
+"""
+    data = {
+        "title": "Пример списка",
+        "form-TOTAL_FORMS": "4",
+        "form-INITIAL_FORMS": "5",
+        "form-MIN_NUM_FORMS": "0",
+        "form-MAX_NUM_FORMS": "1000",
+        "form-0-text": text0,
+        "form-0-status": "planned",
+        "form-1-text": text1,
+        "form-1-status": "in_progress",
+        "form-2-text": text2,
+        "form-2-status": "in_progress",
+        "form-3-text": text3,
+        "form-3-status": "done",
+    }
+    request = factory.post("", data)
+    request.user = user
+    create_userlist(request)

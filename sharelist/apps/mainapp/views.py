@@ -1,8 +1,9 @@
+import logging
+
 from django.views import View
 from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse, reverse_lazy
-from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.forms.formsets import BaseFormSet
 from django.forms import formset_factory
@@ -10,7 +11,6 @@ from django.forms import formset_factory
 from mainapp.services.list_item_logic import (
     get_all_userlists,
     get_userlist_detail_context,
-    get_userlist_detail_maininfo,
     save_userlist_detail_all,
     delete_userlist,
     create_userlist,
@@ -26,6 +26,17 @@ from mainapp.services.permissions_logic import (
 )
 from mainapp.forms import UserListForm, UserItemForm
 
+from django.shortcuts import render
+from django.http import HttpResponseNotFound
+
+
+logger = logging.getLogger(__name__)
+
+def handler404(request, exception, template_name="errorpage.html"):
+    """Custom 404 render"""
+    context = {"error_massage": "HTTP 404: Запрошенный адрес не найден"}
+    response = render(request, template_name, context, status=404)
+    return response
 
 class BaseView(View):
     """
@@ -38,15 +49,17 @@ class BaseView(View):
             response = super().dispatch(request, *args, **kwargs)
         except Exception as e:
             context = {"error_massage": e}
-            # html = "<html><body>%s</body></html>" % e
             if type(e) == PermissionDenied:
                 status_code = 403
             elif type(e) == ObjectDoesNotExist:
                 status_code = 404
             else:
                 status_code = 500
-            return render(request, "errorpage.html", context, status=status_code)
-            # return HttpResponse(html, status=status_code)
+            logger.warning(
+                f"User '{request.user}' got error: {e}, code: {status_code}"
+            )
+            return render(request, "errorpage.html", context,
+                          status=status_code)
         return response
 
 
@@ -115,11 +128,7 @@ class DeleteList(LoginRequiredMixin, BaseView):
     login_url = reverse_lazy("login")
 
     def get(self, request, userlist_id):
-        context = {
-            "userlist_form": get_userlist_detail_maininfo(
-                request.user.id, userlist_id
-            )
-        }
+        context = get_userlist_detail_context(request.user.id, userlist_id)
         return render(request, "deletepage.html", context)
 
     def post(self, request, userlist_id):
@@ -136,11 +145,7 @@ class RemoveList(LoginRequiredMixin, BaseView):
     login_url = reverse_lazy("login")
 
     def get(self, request, userlist_id):
-        context = {
-            "userlist_form": get_userlist_detail_maininfo(
-                request.user.id, userlist_id
-            )
-        }
+        context = get_userlist_detail_context(request.user.id, userlist_id)
         return render(request, "removelist.html", context)
 
     def post(self, request, userlist_id):
@@ -177,24 +182,20 @@ class ShareListConfirm(LoginRequiredMixin, BaseView):
 
 class UserListControl(LoginRequiredMixin, BaseView):
     """
-    Control page for author of UserList, where he can change permissions for
-    users and check the sharecode for list
+    Control page for author of UserList, where he can change 
+    permissions for users and check the sharecode for list
     """
 
     login_url = reverse_lazy("login")
 
     def get(self, request, userlist_id):
-        context = {
-            "userlist_form": get_userlist_detail_maininfo(
-                request.user.id, userlist_id
-            ),
-            "userlistshareform": get_userlist_detail_sharelinks(
+        context = get_userlist_detail_context(request.user.id, userlist_id)
+        context["userlistshareform"] = get_userlist_detail_sharelinks(
                 request, userlist_id
-            ),
-            "permissions_formset": get_permissions(
+        )
+        context["permissions_formset"] = get_permissions(
                 userlist_id, request.user.id
-            ),
-        }
+        )
         return render(request, "controllist.html", context)
 
     def post(self, request, userlist_id):

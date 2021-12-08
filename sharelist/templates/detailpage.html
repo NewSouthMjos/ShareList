@@ -22,7 +22,9 @@
 		{{ item.status|addclass:'status_style' }}
 		
 		
-		<div class="item_style">{{ item.text|addclass:'input_class disable_drag' }}<h5>В последний раз обновлено в {{ item.updated_datetime.value }} пользователем {{ item.last_update_author.value }}</h5></div>
+		<div class="item_style">{{ item.text|addclass:'input_class disable_drag' }}<h5>В последний раз обновлен <span class="time">{{ item.updated_datetime.value|date:'c' }}Z</span> пользователем {{ item.last_update_author.value }}</h5></div>
+		
+		{{ item.useritem_id }}
 		
 		
 		{% if access_level >= 2 %}
@@ -37,7 +39,7 @@
 	</div>
 	<!-- <p>Описание: {{ userlist_form.description }}</p> -->
 	{% if not is_new_list %}
-	<p class="centered more_padding">В последний раз список обновлен пользователем {{ userlist_form.last_update_author.value }} в {{ userlist_form.updated_datetime.value }}</p>
+	<p class="centered more_padding">В последний раз список обновлен <span class="time">{{ userlist_form.updated_datetime.value|date:'c' }}Z</span> пользователем {{ userlist_form.last_update_author.value }}</p>
 	{% endif %}
 	{{ item_formset.management_form  }}
 	{% if access_level >= 2 %}
@@ -47,12 +49,32 @@
 	
 </form>
 
-
 <!-- Include formset plugin - including jQuery dependency -->
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 
 <script src="{% static 'js/autoheight.js' %}"></script>
+
+<!-- Include MomentJS dependency -->
+<script type = "text/JavaScript" src ="https://MomentJS.com/downloads/moment-with-locales.js"></script>
+<script>
+
+function convertUTCDateToLocalDate(date) {
+    var utcDate = date;  // ISO-8601 formatted date returned from server
+	var localDate = new moment(utcDate);
+	var localformatted = localDate.fromNow();
+    return localformatted;   
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    taskElements_3 = document.querySelectorAll(`.time`);
+	moment.locale('ru'); 
+	for (time_span of taskElements_3) {
+		time_span.innerHTML = convertUTCDateToLocalDate(time_span.innerHTML)
+	}
+}, false);
+
+</script>
 
 {% if access_level >= 2 %}
 <script src="{% static 'js/jquery.formset.js' %}"></script>
