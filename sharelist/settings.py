@@ -90,14 +90,16 @@ WSGI_APPLICATION = 'sharelist.wsgi.application'
 
 
 DB_password = os.getenv('DB_password')
+DATABASE_URL = os.getenv('DATABASE_URL')
+PORT = os.getenv('PORT')
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'django_db',
         'USER' : 'user_django',
         'PASSWORD' : DB_password,
-        'HOST' : '127.0.0.1',
-        'PORT' : '5432',
+        'HOST' : DATABASE_URL,
+        'PORT' : PORT,
     }
 }
 

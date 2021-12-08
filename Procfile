@@ -1,0 +1,1 @@
+web: gunicorn CommentGrabber.wsgi --log-file -
