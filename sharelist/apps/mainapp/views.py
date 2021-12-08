@@ -1,3 +1,5 @@
+import logging
+
 from django.views import View
 from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -5,7 +7,6 @@ from django.urls import reverse, reverse_lazy
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.forms.formsets import BaseFormSet
 from django.forms import formset_factory
-import logging
 
 from mainapp.services.list_item_logic import (
     get_all_userlists,
@@ -25,8 +26,17 @@ from mainapp.services.permissions_logic import (
 )
 from mainapp.forms import UserListForm, UserItemForm
 
+from django.shortcuts import render
+from django.http import HttpResponseNotFound
+
+
 logger = logging.getLogger(__name__)
 
+def handler404(request, exception, template_name="errorpage.html"):
+    """Custom 404 render"""
+    context = {"error_massage": "HTTP 404: Запрошенный адрес не найден"}
+    response = render(request, template_name, context, status=404)
+    return response
 
 class BaseView(View):
     """
@@ -45,7 +55,7 @@ class BaseView(View):
                 status_code = 404
             else:
                 status_code = 500
-            logger.info(
+            logger.warning(
                 f"User '{request.user}' got error: {e}, code: {status_code}"
             )
             return render(request, "errorpage.html", context,

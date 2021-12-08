@@ -31,9 +31,9 @@ load_dotenv()
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -177,6 +177,18 @@ LOGGING = {
             'formatter': 'simple'
         },
     },
+
+    # For all the auto django logging
+    'loggers': {
+        'django.server': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False
+        },
+    },
+    
+    # For logs from user's code
+    # Code should call for app like 'mainapp' here?
     'root': {
         'handlers': ['console'],
         'level': 'INFO',

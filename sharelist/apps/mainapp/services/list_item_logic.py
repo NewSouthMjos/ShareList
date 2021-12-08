@@ -1,3 +1,5 @@
+import logging
+
 from django.forms.formsets import BaseFormSet
 from django.forms import formset_factory
 from django.core.exceptions import (
@@ -18,6 +20,9 @@ from mainapp.models import (
 from mainapp.forms import UserListForm, UserItemForm, UserListShareForm
 from mainapp.services.permissions_logic import userlist_access_check
 from accounts.models import CustomUser
+
+
+logger = logging.getLogger(__name__)
 
 
 def get_all_userlists(user_id: int):
@@ -57,7 +62,9 @@ def get_userlist_detail_context(user_id: int, userlist_id: int):
     elif access_level > 1:
         readonly_flag = False
     else:
-        raise PermissionDenied("You have no access to list #%s. Access level:" % userlist_id, access_level)
+        raise PermissionDenied(
+            f"You have no access to list #{userlist_id}. Access level: {access_level}"
+        )
     return {
         "userlist_form": _get_userlist_detail_maininfo(
             user_id, userlist_id, readonly_flag
@@ -70,7 +77,7 @@ def get_userlist_detail_context(user_id: int, userlist_id: int):
 
 
 def _get_userlist_detail_maininfo(user_id: int, userlist_id: int,
-                                 readonly_flag: bool = False):
+                                  readonly_flag: bool = False):
     """
     Return the form of UserList to be displayed
     """
@@ -93,7 +100,7 @@ def _get_userlist_detail_maininfo(user_id: int, userlist_id: int,
 
 
 def _get_userlist_detail_items(user_id: int, userlist_id: int,
-                              readonly_flag: bool = False):
+                               readonly_flag: bool = False):
     """
     Return item formset, that contains data from
     passed userlist_id
@@ -206,7 +213,7 @@ def _save_userlist_detail_items(request, userlist_id: int):
             # LOG MESSAGE ABOUT UPDATE HERE <---
 
     except IntegrityError:  # If the transaction failed
-        # messages.error(request, '')
+        logger.error("Error while saving useritems to database")
         raise IntegrityError("Ошибка сохранения данных на сервере")
 
 
@@ -230,7 +237,7 @@ def get_userlist_detail_sharelinks(request, userlist_id: int):
     try:
         userlist = UserList.objects.get(id=userlist_id)
     except UserList.DoesNotExist:
-        raise ObjectDoesNotExist("List %s not found" % userlist_id)
+        raise ObjectDoesNotExist("List #%s not found" % userlist_id)
     if userlist_access_check(request.user.id, userlist_id) < 3:
         raise PermissionDenied("You have no access to view sharelinks")
 
