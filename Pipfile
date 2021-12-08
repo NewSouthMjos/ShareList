@@ -10,6 +10,7 @@ django = "*"
 django-extensions = "*"
 coverage = "*"
 whitenoise = "*"
+dj-database-url = "*"
 
 [dev-packages]
 
