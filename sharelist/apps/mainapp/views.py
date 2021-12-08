@@ -5,6 +5,7 @@ from django.urls import reverse, reverse_lazy
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.forms.formsets import BaseFormSet
 from django.forms import formset_factory
+import logging
 
 from mainapp.services.list_item_logic import (
     get_all_userlists,
@@ -24,6 +25,8 @@ from mainapp.services.permissions_logic import (
 )
 from mainapp.forms import UserListForm, UserItemForm
 
+logger = logging.getLogger(__name__)
+
 
 class BaseView(View):
     """
@@ -42,6 +45,9 @@ class BaseView(View):
                 status_code = 404
             else:
                 status_code = 500
+            logger.info(
+                f"User '{request.user}' got error: {e}, code: {status_code}"
+            )
             return render(request, "errorpage.html", context,
                           status=status_code)
         return response
@@ -166,8 +172,8 @@ class ShareListConfirm(LoginRequiredMixin, BaseView):
 
 class UserListControl(LoginRequiredMixin, BaseView):
     """
-    Control page for author of UserList, where he can change permissions for
-    users and check the sharecode for list
+    Control page for author of UserList, where he can change 
+    permissions for users and check the sharecode for list
     """
 
     login_url = reverse_lazy("login")
