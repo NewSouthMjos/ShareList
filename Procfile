@@ -1,1 +1,1 @@
-web: gunicorn CommentGrabber.wsgi --log-file -
+web: gunicorn sharelist.wsgi --log-file -
