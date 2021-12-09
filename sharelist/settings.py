@@ -31,7 +31,11 @@ load_dotenv()
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+
+# Production
+ENVIRONMENT = os.environ.get('ENVIRONMENT', default='development')
+
+DEBUG = False if ENVIRONMENT == "production" else True
 
 ALLOWED_HOSTS = ['*']
 
@@ -90,19 +94,24 @@ WSGI_APPLICATION = 'sharelist.wsgi.application'
 
 
 # SEE HEROKU ABOVE
-# DB_password = os.getenv('DB_password')
-# DATABASE_URL = os.getenv('DATABASE_URL')
-# PORT = os.getenv('PORT')
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'django_db',
-        'USER' : 'user_django',
-        'PASSWORD' : 'DB_password',
-        'HOST' : 'DATABASE_URL',
-        'PORT' : 'PORT',
+DATABASES = {}
+if ENVIRONMENT == "production":
+    import dj_database_url
+    DATABASES['default'] = dj_database_url.config(conn_max_age=600)
+else:
+    DB_password = os.getenv('DB_password')
+    DATABASE_URL = os.getenv('DATABASE_URL')
+    PORT = os.getenv('PORT')
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'django_db',
+            'USER' : 'user_django',
+            'PASSWORD' : DB_password,
+            'HOST' : DATABASE_URL,
+            'PORT' : PORT,
+        }
     }
-}
 
 
 # Password validation
@@ -198,12 +207,7 @@ LOGGING = {
     },
 }
 
-# heroku
-import dj_database_url
-DATABASES['default'] = dj_database_url.config(conn_max_age=600)
-
-# Production
-ENVIRONMENT = os.environ.get('ENVIRONMENT', default='development')
+# Production settings:
 if ENVIRONMENT == 'production':
     SECURE_BROWSER_XSS_FILTER = True
     X_FRAME_OPTIONS = 'DENY'
