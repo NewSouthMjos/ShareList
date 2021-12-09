@@ -1,0 +1,5 @@
+create user user_django with password '12345';
+alter role user_django set client_encoding to 'utf8';
+alter role user_django set default_transaction_isolation to 'read committed';
+alter role user_django set timezone to '+04';
+create database django_db owner user_django;

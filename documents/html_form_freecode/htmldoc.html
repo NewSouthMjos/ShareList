@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>ShareList</title>
+		<!-- <link href="{% static 'css/base.css' %}" rel="stylesheet"> -->
+		<link rel="stylesheet" type="text/css" href="style.css" />
+		
+		
+		
+	</head>
+	
+	<body>
+		
+	<div class="heading">
+	<h1>ShareList</h1>
+	</div>
+<div class="container">
+  <div class="nav">
+	<a href="">Мои листы</a>
+	
+	<a href="">wsv</a>
+	<a href="">Выйти</a>
+  </div>
+  <div class="list">
+	<form action="" method="post">
+    <div class="num">
+		<input type="text" class="digits" name="form-0-inner_order" value="1" readonly="" size="2" id="id_form-0-inner_order">
+		<!-- <div class="digits">
+		1
+		</div> -->
+		<div class="item_style"><h3><span class="input_class" role="textbox" contenteditable>Это первый пункт</span></h3><h5>В последний раз обновлено в 11:30 29.11.2021 пользователем wsv</h5></div>
+    </div>
+    <div class="num">
+		<input type="text" class="digits" name="form-0-inner_order" value="2" readonly="" size="2" id="id_form-0-inner_order">
+		<div class="item_style"><h3><span class="input_class" role="textbox" contenteditable>Это второй пункт</span></h3><h5>В последний раз обновлено в 11:30 29.11.2021 пользователем wsv</h5></div>
+	
+    </div>
+	
+    <div class="num">
+		<input type="text" class="digits" name="form-0-inner_order" value="3" readonly="" size="2" id="id_form-0-inner_order">
+		<div class="item_style"><h3><span class="input_class" role="textbox" contenteditable>Третий пункт</span></h3><h5>В последний раз обновлено в 11:30 29.11.2021 пользователем wsv</h5></div>
+	
+    </div>
+	<p class="centered"><a href="">Сохранить</a></p>
+  </form>
+  </div>
+</div>
+<h5 class="message">by Mishkin Evgeny, 2021</h5>	
+		
+		
+	</body>
+</html>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script type="text/javascript" src="myjs.js"></script>
+<script>
+    $('.num').formset({
+        deleteText: 'Удалить',
+		addText: 'Добавить пункт',
+    });
+</script>
+
+
