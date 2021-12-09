@@ -1,0 +1,15 @@
+В тестовой локальной БД:
+
+user1 a9d8fh98sdfisdfj8s
+user2 98jf9rsimrkofmiom
+user3 утеряно
+user 4 J*(FEDNFfd3
+wsv qazwsxedc1
+user6 !@#$%gggd
+user8 ikdf887dg
+user13 oikg9595$
+user17 oikg9595$
+
+
+
+heroku logs --tail -a sharelistapp
